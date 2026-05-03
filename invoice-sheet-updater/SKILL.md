@@ -20,7 +20,9 @@ When a forwarded invoice email arrives:
 
 ## Key Resources
 
-See [references/vendors.md](references/vendors.md) for vendor-to-category mappings and [references/sheet-schema.md](references/sheet-schema.md) for the exact column structure and data entry format.
+- **Quick Reference:** [QUICK_REFERENCE.md](QUICK_REFERENCE.md) — 7-step workflow, common commands, troubleshooting
+- **Vendor Mappings:** [references/vendors.md](references/vendors.md) — 20+ vendors with categories and VAT rates
+- **Sheet Schema:** [references/sheet-schema.md](references/sheet-schema.md) — column structure, data formats, validation rules
 
 ## Workflow: Processing a Forwarded Invoice
 
