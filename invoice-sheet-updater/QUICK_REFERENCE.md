@@ -13,7 +13,7 @@ gog gmail search "Fwd: Hetzner" --plain
 # Returns: message_id = 19ded6bbc666ae24
 ```
 
-### 💾 Step 2: Get Email Details
+### 2️⃣ Step 2: Get Email Details
 ```bash
 gog gmail get "{message_id}" --plain
 ```
@@ -22,8 +22,14 @@ Extract these fields:
 - **Date:** Invoice issue date (DD/MM/YYYY)
 - **Invoice #:** Alphanumeric identifier from invoice
 - **Amount:** Total amount shown on invoice
+- **Currency:** USD, GBP, EUR, or other
 - **Vendor:** Full company/legal name
 - **Tax %:** VAT percentage stated on invoice
+
+**If amount is in USD:**
+- Check similar vendor entries in the sheet for historical exchange rate
+- Example: X.AI invoices typically use ~0.858 EUR/USD
+- **When uncertain, ask the user for the correct rate instead of guessing**
 
 ### 📊 Step 3: Find Next Row in Sheet
 ```bash

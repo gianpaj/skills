@@ -52,14 +52,22 @@ From the email body and/or PDF attachment, extract:
 - **Vendor Name**: Full vendor/company name
 - **Category**: Maps to one of the predefined categories (see references/vendors.md)
 - **Tax %**: VAT rate (21%, 19%, 4%, or blank for 0%)
+- **Currency**: Note if invoice is in USD, GBP, or other non-EUR currency
 
 **For PDF attachments:** Download using `gog gmail attachment` and read with `pdf` tool to extract structured data.
+
+**Currency Conversion (if needed):**
+- Sheet uses EUR (€) for all amounts
+- If invoice is in USD: Look up current EUR/USD rate or check historical entries in the sheet for similar vendor (e.g., X.AI invoices show ~0.858 EUR/USD)
+- **Ask user for correct rate if uncertain** — do not guess
+- Once converted, treat as EUR amount in the sheet (no VAT for US digital services)
 
 **Important notes:**
 - The invoice total shown is usually WITH VAT (the final amount)
 - Dates must be in DD/MM/YYYY format
 - For EU vendors, assume 21% VAT unless invoice specifies otherwise
 - Cloud services and international vendors may have 0% or different VAT rates
+- US digital services (like X.AI API) have 0% VAT when charged to EU accounts
 
 ### 3. Map Vendor to Category
 
