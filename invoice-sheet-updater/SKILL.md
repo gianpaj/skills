@@ -58,8 +58,9 @@ From the email body and/or PDF attachment, extract:
 
 **Currency Conversion (if needed):**
 - Sheet uses EUR (€) for all amounts
-- If invoice is in USD: Look up current EUR/USD rate or check historical entries in the sheet for similar vendor (e.g., X.AI invoices show ~0.858 EUR/USD)
-- **Ask user for correct rate if uncertain** — do not guess
+- If invoice is in USD: Get the closing rate for that invoice date from https://www.exchangerates.org.uk/USD-EUR-exchange-rate-history.html
+- Example: X.AI invoice dated 03/05/2026 had closing rate 1 USD = 0.85222 EUR
+- Calculate: USD amount × closing rate = EUR amount
 - Once converted, treat as EUR amount in the sheet (no VAT for US digital services)
 
 **Important notes:**

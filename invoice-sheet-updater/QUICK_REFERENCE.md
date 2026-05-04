@@ -27,9 +27,9 @@ Extract these fields:
 - **Tax %:** VAT percentage stated on invoice
 
 **If amount is in USD:**
-- Check similar vendor entries in the sheet for historical exchange rate
-- Example: X.AI invoices typically use ~0.858 EUR/USD
-- **When uncertain, ask the user for the correct rate instead of guessing**
+- Get the closing rate for that date: https://www.exchangerates.org.uk/USD-EUR-exchange-rate-history.html
+- Calculate: USD amount × closing rate = EUR amount
+- Example: 24.88 USD on 03/05/2026 × 0.85222 = 21.20 EUR
 
 ### 📊 Step 3: Find Next Row in Sheet
 ```bash
