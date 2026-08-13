@@ -10,27 +10,21 @@ the dev's intent in both a minimal and realistic fashion.
 
 ## Commit message
 
-You are an expert at writing Git commits. Your job is to write a short clear
-commitlint-style message that summarizes the changes.
-
-If you can accurately express the change in just the subject line, don't include
-anything in the message body. Only use the body when it is providing *useful* information.
-
-Don't repeat information from the subject line in the message body.
-
-Only return the commit message in your response. Do not include any additional
-meta-commentary about the task. Do not include the raw diff output in the commit message.
+Whenever creating a Git commit or proposing a commit message, use a short,
+  clear commitlint-style message.
 
 Follow good Git style:
 
-- use Commitlint message style
-- Separate the subject from the body with a blank line
+- use Commitlint style
+- Use the imperative mood
 - Try to limit the subject line to 50 characters
 - Capitalize the subject line
 - Do not end the subject line with any punctuation
-- Use the imperative mood in the subject line
+- Add a body only when it provides useful information
+- Separate the subject from the body with a blank line
 - Wrap the body at 72 characters
-- Keep the body short and concise (omit it entirely if not useful)
+- Do not repeat the subject in the body
+- Do not include raw diff output in the commit message
 
 ## Open a PR
 
@@ -41,4 +35,3 @@ added based on the user's original prompt, then briefly explain the solution (if
 Do not lead with an implementation inventory.
 
 Don't open a PR as draft, it should be ready for review so Review Coding Agents can run.
-
