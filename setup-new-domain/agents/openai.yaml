@@ -1,0 +1,4 @@
+interface:
+  display_name: "Setup New Domain"
+  short_description: "Set up DNS, search ownership, and email routing"
+  default_prompt: "Use $setup-new-domain to launch a registered domain safely across its registrar, DNS provider, search ownership, and optional email routing."
