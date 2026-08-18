@@ -1,11 +1,14 @@
-review this REPO: https://github.com/XX/XX/ PR_NUMBER: #XX (this pr branch - `XX`)
-
 ---
 allowed-tools: Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)
 description: Review a pull request
 ---
 
-Perform a comprehensive code review using subagents for key areas:
+Review this local branch or REPO: https://github.com/XX/XX/ PR_NUMBER: #XX (this PR branch - `XX`)
+
+Take your time. Do it step by step. Do use .agents/notes to keep track of
+learnings and decisions while reviewing and later making changes
+
+Perform a comprehensive code review WITHOUT subagents for key areas:
 
 - code-quality-reviewer
 - performance-reviewer
