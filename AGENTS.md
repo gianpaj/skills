@@ -70,3 +70,8 @@ Document current state, not change history. Avoid "previously/now/no longer", PR
 - Narrated history or war stories: "previously", "now", "no longer", "used to", "renamed", "was moved", PRs, or commits. State the current fact; link an Agent Note
 - Reasoning transcripts: step-by-step implementation narration, proof of obvious branches, test walkthroughs, or rejected local alternatives. Keep the resulting contract or durable rationale; delete the path used to derive it.
 - Paragraph walls: one paragraph carrying several rules and parenthetical asides. Split it or demote the detail to its home.
+
+## General rules
+
+- Don't write plans or spec .md files unless asked. If unsure, ask. By default don't commit small specs.
+- Write small specs and plans (less than 30 lines) in a temp folder. Don't commit in the repo.
