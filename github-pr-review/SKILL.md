@@ -1,6 +1,6 @@
 ---
 name: github-pr-review
-description: "Use this skill when asked to address, fix, or resolve GitHub PR review comments. Covers fetching comments via gh CLI, applying code fixes one at a time, committing with commitlint-style messages, and resolving threads on GitHub."
+description: "Use this skill when asked to address, fix, or resolve GitHub PR review comments."
 ---
 
 # GitHub PR Review Comment Resolution
@@ -70,9 +70,9 @@ For every unresolved thread, decide:
 
 | Decision | Criteria |
 |----------|----------|
-| ✅ **Apply** | Valid bug, inconsistency, performance issue, or clear improvement that fits the PR scope |
-| ⏭️ **Skip** | Out of scope, requires large refactor, contradicts existing patterns, or is purely stylistic preference |
-| 🗣️ **Discuss** | Ambiguous — surface to the human before acting |
+| ✅ Apply | Valid bug, inconsistency, performance issue, or clear improvement that fits the PR scope |
+| ⏭️ Skip | Out of scope, requires large refactor, contradicts existing patterns, or is purely stylistic preference |
+| 🗣️ Discuss | Ambiguous — surface to the human before acting |
 
 Work through comments **one at a time**, in priority order: bugs → performance → consistency → style.
 
@@ -80,7 +80,7 @@ Work through comments **one at a time**, in priority order: bugs → performance
 
 ## Step 4 — Apply Fix and Commit
 
-For each comment being addressed, make the minimal targeted code change, then commit immediately using **commitlint-style messages**:
+For each comment being addressed, make the minimal targeted code change, then commit immediately using commitlint-style messages:
 
 ### Commit message format
 
@@ -97,15 +97,14 @@ For each comment being addressed, make the minimal targeted code change, then co
 | `style` | Formatting, naming (no logic change) |
 | `chore` | Config, deps, tooling |
 
-**Examples from this workflow:**
+Examples:
 
 ```sh
 git commit -m "refactor(blog): extract DEFAULT_PROMO_KEY constant for blackFridayBanner magic string"
-git commit -m "perf(blog): set priority and eager loading for first 3 above-fold images to improve LCP"
 git commit -m "feat(blog): add empty state when no posts are available for current locale"
-git commit -m "fix(blog): use locale-aware date formatting with date-fns locale mapping"
-git commit -m "feat(blog): add generateStaticParams and dynamicParams=false for static generation of all locale routes"
-git commit -m "feat(blog): add generateMetadata with OG, Twitter, and alternates for SEO"
+git commit -m "refactor(db): Drop legacy tables and config paths"
+git commit -m "feat: Vapi voice channel + inbound webhook auth hardening (#2)" # where #2 is the GH issue addressed
+git commit -m "feat: add WhatsApp channel (WAHA) + Telegram text handler"
 ```
 
 ### Commit command
@@ -141,9 +140,9 @@ Do not skip this reply step for addressed threads. The reply is part of the work
 Use the current runtime's harness + model string exactly as it is known in context, for example:
 
 - `Zed`
-- `Codex App`
+- `Codex`
 - `Claude Code`
-- `GPT-5.5` (model) if the harness or software agent is not known, otherwise none
+- `GPT-5.6` (model) if the harness or software agent is not known, otherwise none
 
 ### Reply format
 
@@ -152,6 +151,23 @@ Use the current runtime's harness + model string exactly as it is known in conte
 
 Addressed in <commit_sha>: <short summary>
 ```
+
+## Replying to a multi-fact comment
+
+See this example:
+
+```text
+Zed - GPT-5.6 Sol
+
+Addressed the actionable AI review findings one fix per commit:
+
+- de719ec narrows the research-process regex and preserves legitimate evidence language.
+- 2dc78e6 detects leaks using the prompt’s current private-research vocabulary.
+
+The timestamp concern is superseded by the final HEAD run and cleaned history. The `.oxfmtrc.json` note identified only a prior commit-subject typo; the configuration itself was correct, so no code change was needed. The cost/latency concern is addressed by the five-search cap and version tracking.
+```
+
+Don't use back quotes for commit hash. Github will add links if left like in the example.
 
 ### Reply command
 
@@ -165,6 +181,7 @@ gh api repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}/replies \
 For threads that were intentionally deferred, leave the thread open. Add a reply only when that context helps the reviewer understand why it stays open.
 
 Rule of thumb:
+
 - addressed thread → reply first, then resolve
 - deferred thread → usually leave open, optionally reply with context
 - skipped thread → leave open
@@ -283,10 +300,10 @@ mutation {
 
 ## Key Rules
 
-- **One fix, one commit** — never batch multiple comment fixes into a single commit
-- **Commitlint format always** — `type(scope): description`, lowercase, no period at end
+- **One fix, one commit** — never batch multiple fixes into a single commit
+- **Commitlint format always** — `type[(scope)]: description`, lowercase
 - **Reply before resolve** — every addressed thread gets a GitHub reply before resolution
-- **Identify the writer** — the reply must include the harness + model string, such as `Codex App` or `Claude Code`
+- **Identify the writer** — the reply must include the harness + model string, such as `Codex` or `Claude Code`
 - **Resolve only what you fixed** — do not resolve threads for skipped comments
 - **REST IDs ≠ GraphQL IDs** — the `id` from `gh api pulls/{pr}/comments` cannot be used with `resolveReviewThread`; always fetch the `PRRT_*` node ID via GraphQL first
 - **Use REST for replies, GraphQL for resolve** — reply with the review comment `databaseId`, resolve with the thread `PRRT_*` ID
