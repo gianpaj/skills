@@ -1,77 +1,106 @@
-## Developer Preference
+## Developer preferences
 
 I like ambitious ideas, simple systems, and software that feels obvious. Do not preserve
 complexity just because it already exists. Do not introduce machinery because it looks
 architecturally impressive. Understand the real constraint, then fight for the smallest
 mental model that makes the correct behavior unsurprising.
 
-Channel both "measure twice cut once" and YAGNI. Fight scope creep. Try to honor
-the dev's intent in both a minimal and realistic fashion.
+Channel both "measure twice, cut once" and YAGNI. Fight scope creep. Try to honor
+my intent – the smallest change that actually solves the problem, not a toy version.
 
-## Commit message
+## Commit messages
 
-Whenever creating a Git commit or proposing a commit message, use a short,
-  clear commitlint-style message.
+Whenever creating a Git commit or proposing a commit message, follow this Git commit style:
 
-Follow good Git style:
-
-- use Commitlint style
+- Use Conventional Commits syntax
 - Use the imperative mood
 - Try to limit the subject line to 50 characters
-- Capitalize the subject line
 - Do not end the subject line with any punctuation
-- Add a body only when it provides useful information
+- Add a body only when it provides useful context or the diff is large
 - Separate the subject from the body with a blank line
 - Wrap the body at 72 characters
 - Do not repeat the subject in the body
 - Do not include raw diff output in the commit message
 
-## Open a PR
+Examples:
 
-Prefer a concise, human-readable title that explains why the changes matters.
+- feat: enable adaptive thinking
+- feat(eval): get cost and timing metrics in eval
 
-Start the description with a simple explanation of the problem or functionality
-added based on the user's original prompt, then briefly explain the solution (if there's one).
-Do not lead with an implementation inventory.
+## Open a PR or GitHub issue
 
-Don't open a PR as draft, it should be ready for review so Review Coding Agents can run.
+Prefer a concise, human-readable title. For a PR, say why the change matters;
+for an issue, name the problem or desired outcome.
 
-## Plans and Specs
+Open the description with the problem or capability from the user's request.
+If there is a proposed solution, explain it next. Do not lead with an implementation inventory.
 
-When saving plans, design and spec documents in repositories, don't save them in
-`<repo>/brainstorm/spec/` or similar.
-Save them in `<repo>/plans`.
+Open a PR only when it is ready for review. Do not open a draft, because automated
+review agents need a ready PR.
 
-The file names should start with the date i.e. `2026-06-23-xx.md`
+## Plans and specs
 
-## When implementing large Plans or Specs
+Do not write a plan, design document, or spec unless asked.
 
-Use `.agents/notes` folder with markdown files to keep track of learnings and decisions.
+Keep drafts of 40 lines or fewer in a temporary directory outside the repository.
+Do not commit them.
 
-Agent Notes are effectively RFCs written by agents: durable proposals and decision records that preserve rationale, alternatives, consequences, and required verification.
+Save larger plans under `<repo>/plans/`. Prefix filenames with the date:
 
-Every Agent Note has two axes, both encoded in its **path** — `{lifecycle}/{class}/yyyy-mm-dd-topic-title.md`:
+`yyyy-mm-dd-topic-title.md`
 
-- **Lifecycle**:
-  - **`proposed/`** — proposals reviewed before implementation; not yet built (or only partly).
-  - **`implemented/`** — the decision shipped. The file records what was decided and what was rejected, and is **kept current with what actually shipped**: when the code later moves a file, renames a package, or changes a key/default, the Agent Note is updated in the same change to match (facts only — paths, names, structure — not the decision itself).
-  - **`rejected/`** — the proposal was considered and declined. Keep it only while its rationale prevents a tempting, meaningful mistake; otherwise delete the complete triplet.
-- **Class** (the nested folder) is the *kind* of decision — see [Classification](#classification) below.
+### When implementing large plans or specs
 
-## Docs - Writing rules
+For plans and specs longer than 40 lines, record decisions in Markdown files under
+`.agents/notes/`.
 
-These rules apply to human-facing documentation; Agent Notes remain outside their scope.
+Agent Notes are durable proposals and decision records. They preserve rationale,
+alternatives, consequences, and verification.
 
-Document current state, not change history. Avoid "previously/now/no longer", PRs, commits, and stack positions in durable prose; name the live mechanism. Put change stories in commits, PRs, Agent Notes, or postmortems; the latter two may cite merged PRs and issues as evidence.
+Every Agent Note has a lifecycle and a class. Encode both in its path:
 
-## The slop checklist
+`.agents/notes/{lifecycle}/{class}/yyyy-mm-dd-topic-title.md`
 
-- The same rule stated in more than one home. Grep a distinctive phrase; keep one home and link the rest.
-- Narrated history or war stories: "previously", "now", "no longer", "used to", "renamed", "was moved", PRs, or commits. State the current fact; link an Agent Note
-- Reasoning transcripts: step-by-step implementation narration, proof of obvious branches, test walkthroughs, or rejected local alternatives. Keep the resulting contract or durable rationale; delete the path used to derive it.
-- Paragraph walls: one paragraph carrying several rules and parenthetical asides. Split it or demote the detail to its home.
+Pick a short `class` noun and stay consistent within the repository.
 
-## General rules
+- `proposed/` contains decisions under review or partly implemented.
+- `implemented/` contains decisions that shipped. Record the chosen and rejected
+  options. Keep facts such as paths, names, structure, and defaults aligned with the
+  code. Preserve the original rationale.
+- `rejected/` contains declined proposals. Keep one only when its rationale prevents
+  a likely future mistake.
+- Move a note when its lifecycle changes. Do not keep copies in multiple lifecycle
+  directories.
 
-- Don't write plans or spec .md files unless asked. If unsure, ask. By default don't commit small specs.
-- Write small specs and plans (less than 30 lines) in a temp folder. Don't commit in the repo.
+Examples:
+
+```text
+.agents/notes
+├── implemented
+│   └── frontend
+│       ├── 2026-08-18-landing-page-and-design-tokens.md
+│       └── 2026-08-19-shadcn-button-and-select-adoption.md
+├── proposed
+│   ├── architecture
+│   │   └── 2026-08-18-schema-migration-freeze.md
+│   └── process
+│       └── 2026-08-18-deferred-hardening-gates.md
+```
+
+## Writing
+
+Apply the global `unslop` skill to all human-facing prose, including agent responses, Agent Notes,
+documentation, comments, commit messages, and PR text.
+
+Document current state and name the live mechanism. Put change stories in commits,
+PRs, Agent Notes, or postmortems.
+
+- Grep a distinctive phrase before adding a rule. Keep one canonical location and
+  link to it elsewhere.
+- Cut narrated history. Delete "previously", "now", "no longer", "used to",
+  "renamed", "was moved", and references to PRs or commits.
+- Cut reasoning transcripts. Delete step-by-step implementation narration, proofs
+  of obvious branches, test walkthroughs, and rejected local alternatives;
+  Keep the rule and the reason it exists; delete the story of how you got there.
+- Split paragraph walls. When one paragraph carries several rules and parenthetical
+  asides, break it up and move unrelated details to their canonical document.
