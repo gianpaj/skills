@@ -49,10 +49,11 @@ Save larger plans under `<repo>/plans/`. Prefix filenames with the date:
 
 `yyyy-mm-dd-topic-title.md`
 
-### When implementing large plans or specs
+## Large implementations and long-running work
 
-For plans and specs longer than 40 lines, record decisions in Markdown files under
-`.agents/notes/`.
+Work step by step. Record learnings, trade-offs, and decisions in Markdown files
+under `.agents/notes/`. This includes implementing any plan or spec longer than
+40 lines.
 
 Agent Notes are durable proposals and decision records. They preserve rationale,
 alternatives, consequences, and verification.
