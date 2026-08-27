@@ -105,3 +105,11 @@ PRs, Agent Notes, or postmortems.
   Keep the rule and the reason it exists; delete the story of how you got there.
 - Split paragraph walls. When one paragraph carries several rules and parenthetical
   asides, break it up and move unrelated details to their canonical document.
+
+## Searching code
+
+Prefer `rg` over `grep`; `grep` has no column limit. Locate first with `rg -l` or
+`rg -c`, then read only the matching region.
+
+When printing matches, pass `-M200 --max-columns-preview` so a minified or generated
+file cannot dump one huge line into context.
