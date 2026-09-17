@@ -1,0 +1,4 @@
+interface:
+  display_name: "Competitor Teardown"
+  short_description: "Explore competitor features, settings, and workflows"
+  default_prompt: "Use $competitor-teardown to explore this public or logged-in product, document its features and settings, and capture meaningful UI states."
