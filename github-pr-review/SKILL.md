@@ -147,9 +147,9 @@ Use the current runtime's harness + model string exactly as it is known in conte
 ### Reply format
 
 ```text
-<Harness> - <Model>
+Addressed in <commit_sha>: <short summary in markdown format>
 
-Addressed in <commit_sha>: <short summary>
+<Harness> - <Model>
 ```
 
 ## Replying to a multi-fact comment
@@ -157,14 +157,14 @@ Addressed in <commit_sha>: <short summary>
 See this example:
 
 ```text
-Zed - GPT-5.6 Sol
-
 Addressed the actionable AI review findings one fix per commit:
 
 - de719ec narrows the research-process regex and preserves legitimate evidence language.
 - 2dc78e6 detects leaks using the prompt’s current private-research vocabulary.
 
 The timestamp concern is superseded by the final HEAD run and cleaned history. The `.oxfmtrc.json` note identified only a prior commit-subject typo; the configuration itself was correct, so no code change was needed. The cost/latency concern is addressed by the five-search cap and version tracking.
+
+Zed - GPT-5.6-Astra
 ```
 
 Don't use back quotes for commit hash. Github will add links if left like in the example.
@@ -193,6 +193,7 @@ Rule of thumb:
 Use the GraphQL `resolveReviewThread` mutation with the `PRRT_*` node ID from Step 2.
 
 Only do this after Step 6 has been completed for that addressed thread:
+
 - fix committed
 - GitHub reply posted on the thread
 - then resolve
