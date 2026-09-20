@@ -17,20 +17,35 @@ Important: if a thread has been addressed, you must leave a reply on GitHub in t
 
 ---
 
-## Step 1 — Fetch All Inline Review Comments
+## Step 1 — Fetch Every Review Source
 
-Get every inline comment (with author, line, and body) for a PR:
+Findings arrive in three places, and only the first one is a thread. Review
+agents (Claude Code, pullfrog, Copilot) usually put a numbered list of findings
+in a review body or a plain PR comment, with at most one or two of them repeated
+inline. Fetch all three before evaluating anything:
 
 ```sh
+# Inline review comments (threads)
 gh api repos/{owner}/{repo}/pulls/{pr}/comments \
   --jq '.[] | {id: .id, author: .user.login, path: .path, line: .line, body: .body}'
+
+# Review bodies (summary findings, nitpicks)
+gh pr view {pr} --repo {owner}/{repo} --json reviews \
+  --jq '.reviews[] | "== \(.author.login) [\(.state)]\n\(.body)\n"'
+
+# PR comments (bot reports, human follow-ups)
+gh pr view {pr} --repo {owner}/{repo} --json comments \
+  --jq '.comments[] | "== \(.author.login) \(.createdAt)\n\(.body)\n"'
 ```
 
-To also see top-level PR comments (non-inline):
+Then write one checklist before touching code:
 
-```sh
-gh pr view {pr} --repo {owner}/{repo} --json reviews,comments
-```
+- one item per unresolved inline thread
+- one item per numbered finding inside a review body or PR comment
+- a note when the same defect appears in two sources, so one fix closes both
+
+Report the checklist count to the human. If a source was skipped, say so; do
+not report a review as handled from threads alone.
 
 ---
 
@@ -66,7 +81,7 @@ Map each `databaseId` (from REST) to its `id` (GraphQL `PRRT_*`) so you can repl
 
 ## Step 3 — Evaluate Each Comment
 
-For every unresolved thread, decide:
+For every checklist item, decide:
 
 | Decision | Criteria |
 |----------|----------|
@@ -180,6 +195,19 @@ gh api repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}/replies \
 
 For threads that were intentionally deferred, leave the thread open. Add a reply only when that context helps the reviewer understand why it stays open.
 
+### Findings that have no thread
+
+A review body or a PR comment cannot be resolved. Close its findings with one
+PR comment in the multi-fact format above, listing the commit per finding and
+naming each finding left open with the reason:
+
+```sh
+gh pr comment {pr} --repo {owner}/{repo} --body $'...'
+```
+
+Post it once, after every item from that source is either committed or
+deliberately deferred.
+
 Rule of thumb:
 
 - addressed thread → reply first, then resolve
@@ -218,13 +246,16 @@ For threads that were **skipped**, do not resolve them — leave them open so re
 ## Process Flow
 
 ```
-Fetch REST comments (gh api pulls/{pr}/comments)
+Fetch inline comments + review bodies + PR comments
         │
         ▼
 Fetch GraphQL thread IDs + isResolved status
         │
         ▼
-For each unresolved thread:
+Build one checklist (threads + numbered findings)
+        │
+        ▼
+For each item:
   ├── Valid? ──► Apply code fix
   │                  │
   │                  ▼
@@ -243,6 +274,9 @@ For each unresolved thread:
         │
         ▼
 git push origin <branch>
+        │
+        ▼
+One PR comment per threadless source (review body, PR comment)
 ```
 
 ---
@@ -253,9 +287,11 @@ git push origin <branch>
 # 1. Check branch
 git branch --show-current
 
-# 2. Fetch inline review comments (REST)
+# 2. Fetch inline review comments (REST), review bodies, and PR comments
 gh api repos/{owner}/{repo}/pulls/{pr}/comments \
   --jq '.[] | {id: .id, author: .user.login, path: .path, line: .line, body: .body}'
+gh pr view {pr} --repo {owner}/{repo} --json reviews --jq '.reviews[] | .body'
+gh pr view {pr} --repo {owner}/{repo} --json comments --jq '.comments[] | .body'
 
 # 3. Fetch thread node IDs + resolve status (GraphQL)
 gh api graphql -f query='
@@ -295,12 +331,16 @@ mutation {
     thread { isResolved }
   }
 }'
+
+# 8. Close threadless findings (once per review body or PR comment)
+gh pr comment {pr} --repo {owner}/{repo} --body $'<multi-fact reply>'
 ```
 
 ---
 
 ## Key Rules
 
+- **Threads are not the review** — a review body or PR comment can hold more findings than every inline thread combined; the checklist covers all three sources
 - **One fix, one commit** — never batch multiple fixes into a single commit
 - **Commitlint format always** — `type[(scope)]: description`, lowercase
 - **Reply before resolve** — every addressed thread gets a GitHub reply before resolution
