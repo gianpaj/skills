@@ -1,12 +1,17 @@
 ---
 name: code-simplifier
-description: Use when asked to simplify, clean up, or refactor recently modified code. Use when reviewing recent commits or PRs for code quality improvements in JavaScript or TypeScript projects.
+description:
+  Use when asked to simplify, clean up, or refactor recently modified code. Use
+  when reviewing recent commits or PRs for code quality improvements in
+  JavaScript or TypeScript projects.
 original: https://github.com/github/gh-aw/blob/main/.github/workflows/code-simplifier.md
 ---
 
 # Code Simplifier
 
-Analyze recently modified code and simplify it for clarity, consistency, and maintainability while preserving functionality. Optionally create a PR with the changes.
+Analyze recently modified code and simplify it for clarity, consistency, and
+maintainability while preserving functionality. Optionally create a PR with the
+changes.
 
 ## When to Use
 
@@ -14,7 +19,8 @@ Analyze recently modified code and simplify it for clarity, consistency, and mai
 - After a burst of feature work, to tighten up what was merged
 - Reviewing recent PRs for refactoring opportunities
 
-**Do NOT use for:** rewriting entire modules, changes older than a few days, adding features or changing behavior.
+**Do NOT use for:** rewriting entire modules, changes older than a few days,
+adding features or changing behavior.
 
 ## Phase 1: Identify Recently Modified Code
 
@@ -26,9 +32,11 @@ git log --since="24 hours ago" --pretty=format:"%H %s" --no-merges
 git diff --name-only HEAD~5..HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx'
 ```
 
-**Include:** `.ts`, `.tsx`, `.js`, `.jsx` in `app/`, `components/`, `hooks/`, `lib/`
+**Include:** `.ts`, `.tsx`, `.js`, `.jsx` in `app/`, `components/`, `hooks/`,
+`lib/`
 
-**Exclude:** `*.test.*`, `pnpm-lock.yaml`, `deno.lock`, `.contentlayer/`, `components/ui/` (shadcn), `lib/supabase/types.d.ts` (generated), config files
+**Exclude:** `*.test.*`, `pnpm-lock.yaml`, `deno.lock`, `.contentlayer/`,
+`components/ui/` (shadcn), `lib/supabase/types.d.ts` (generated), config files
 
 If no source files changed — exit: "No code changes to simplify."
 
@@ -36,8 +44,10 @@ If no source files changed — exit: "No code changes to simplify."
 
 ### Project Conventions (from biome.jsonc)
 
-This project uses **Biome** (not ESLint/Prettier) with `ultracite` presets. Key enforced rules:
+This project uses **Biome** (not ESLint/Prettier) with `ultracite` presets. Key
+enforced rules:
 
+<!-- prettier-ignore -->
 | Convention | Rule |
 |---|---|
 | Single quotes, 2-space indent, 80-char lines | Biome formatter |
@@ -55,12 +65,15 @@ This project uses **Biome** (not ESLint/Prettier) with `ultracite` presets. Key 
 
 ### Additional Patterns
 
-- **Naming:** camelCase variables, PascalCase components/types, UPPER_SNAKE constants
+- **Naming:** camelCase variables, PascalCase components/types, UPPER_SNAKE
+  constants
 - **Prefer early returns** over deep nesting
 - **Prefer `function` keyword** for top-level/exported functions
 - **Explicit return types** on exported functions
-- **React components:** explicit Props interfaces, `'use client'` directive when needed
-- **Next.js App Router:** server components by default, client components only when hooks/interactivity needed
+- **React components:** explicit Props interfaces, `'use client'` directive when
+  needed
+- **Next.js App Router:** server components by default, client components only
+  when hooks/interactivity needed
 - **Supabase:** use typed client from `lib/supabase/`, never raw SQL strings
 - **Run `pnpm clean` (Knip)** to detect unused exports, files, and dependencies
 
@@ -76,9 +89,12 @@ This project uses **Biome** (not ESLint/Prettier) with `ultracite` presets. Key 
 ### For Each Changed File
 
 1. Read and understand the file's purpose
-2. Identify: long functions, duplicated patterns, complex conditionals, unclear names, non-standard patterns
-3. Ask: Is this a real improvement or just preference? Does it maintain all functionality?
-4. Apply surgical edits — one logical improvement per change, don't touch unrelated code
+2. Identify: long functions, duplicated patterns, complex conditionals, unclear
+   names, non-standard patterns
+3. Ask: Is this a real improvement or just preference? Does it maintain all
+   functionality?
+4. Apply surgical edits — one logical improvement per change, don't touch
+   unrelated code
 
 ## Phase 3: Validate
 
@@ -91,18 +107,22 @@ pnpm test              # Vitest
 pnpm run build         # Next.js build
 ```
 
-Also consider: `pnpm run format` to auto-fix formatting, `pnpm clean` to find unused code.
+Also consider: `pnpm run format` to auto-fix formatting, `pnpm clean` to find
+unused code.
 
 ## Phase 4: Create Pull Request (if requested)
 
-Only create PR if: simplifications were made, all checks pass, no behavior changed.
+Only create PR if: simplifications were made, all checks pass, no behavior
+changed.
 
 Title prefix: `[code-simplifier]`, labels: `refactoring`, `code-quality`.
 
-PR body should list files simplified, improvements made, which recent PRs/commits they came from, and validation results.
+PR body should list files simplified, improvements made, which recent
+PRs/commits they came from, and validation results.
 
 ## Common Mistakes
 
+<!-- prettier-ignore -->
 | Mistake | Fix |
 |---|---|
 | Refactoring unrelated code | Only touch files from recent commits |

@@ -2,10 +2,10 @@
 
 How to shape the SQL this skill writes. Two rules sit above everything else:
 
-1. **A migration that breaks a running reader is two migrations.** Expand now, contract after
-   every reader has shipped.
-2. **A migration that takes `ACCESS EXCLUSIVE` for the length of a table scan is an outage.**
-   Find the variant that does not.
+1. **A migration that breaks a running reader is two migrations.** Expand now,
+   contract after every reader has shipped.
+2. **A migration that takes `ACCESS EXCLUSIVE` for the length of a table scan is
+   an outage.** Find the variant that does not.
 
 ---
 
@@ -13,6 +13,7 @@ How to shape the SQL this skill writes. Two rules sit above everything else:
 
 The phases, and who does each:
 
+<!-- prettier-ignore -->
 | Phase | Migration | Who runs it |
 |---|---|---|
 | 1. Expand | Add the new column, index, or constraint. Nullable, no default that rewrites. | Migration file — safe now |
@@ -28,8 +29,9 @@ Every contract file opens with the same header:
 -- completed, and every reader in plans/<doc>.md § <finding> has shipped.
 ```
 
-Phases 3 and 4 are app changes, so they stay diffs in the report — this skill does not edit
-code. Say in the finding that the contract migration is blocked on them.
+Phases 3 and 4 are app changes, so they stay diffs in the report — this skill
+does not edit code. Say in the finding that the contract migration is blocked on
+them.
 
 ---
 
@@ -37,8 +39,8 @@ code. Say in the finding that the contract migration is blocked on them.
 
 ### Rename a column
 
-A rename is instant and breaks every reader at once. Never rename in place on a table with
-live traffic.
+A rename is instant and breaks every reader at once. Never rename in place on a
+table with live traffic.
 
 ```sql
 -- EXPAND
@@ -51,8 +53,8 @@ ALTER TABLE calls ADD COLUMN billing_status text;
 ALTER TABLE calls DROP COLUMN status;
 ```
 
-A view or a generated column can serve the old name during the transition when the readers are
-outside your control.
+A view or a generated column can serve the old name during the transition when
+the readers are outside your control.
 
 ### Change a column's type
 
@@ -71,9 +73,10 @@ ALTER TABLE calls ADD CONSTRAINT calls_user_id_fkey
 ALTER TABLE calls VALIDATE CONSTRAINT calls_user_id_fkey;
 ```
 
-`ALTER COLUMN ... TYPE` in place rewrites the whole table under `ACCESS EXCLUSIVE`. It is
-acceptable only on a small table, and the finding must state the row count that makes it small.
-Widening `varchar(n)`, or `varchar(n)` to `text`, is metadata-only and needs no expand pair.
+`ALTER COLUMN ... TYPE` in place rewrites the whole table under
+`ACCESS EXCLUSIVE`. It is acceptable only on a small table, and the finding must
+state the row count that makes it small. Widening `varchar(n)`, or `varchar(n)`
+to `text`, is metadata-only and needs no expand pair.
 
 ### Add a foreign key
 
@@ -84,15 +87,15 @@ ALTER TABLE calls ADD CONSTRAINT calls_user_id_fkey
 ALTER TABLE calls VALIDATE CONSTRAINT calls_user_id_fkey;
 ```
 
-`NOT VALID` skips the scan and still enforces the constraint on new rows. `VALIDATE` takes
-`SHARE UPDATE EXCLUSIVE` — it does not block reads or writes. Resolve orphan rows before
-validating; the finding must name the orphan count and offer the choice: delete, backfill, or
-null them.
+`NOT VALID` skips the scan and still enforces the constraint on new rows.
+`VALIDATE` takes `SHARE UPDATE EXCLUSIVE` — it does not block reads or writes.
+Resolve orphan rows before validating; the finding must name the orphan count
+and offer the choice: delete, backfill, or null them.
 
 ### Add `NOT NULL`
 
-`SET NOT NULL` scans the table under `ACCESS EXCLUSIVE`. On Postgres 12 and later a validated
-check constraint lets it skip the scan:
+`SET NOT NULL` scans the table under `ACCESS EXCLUSIVE`. On Postgres 12 and
+later a validated check constraint lets it skip the scan:
 
 ```sql
 ALTER TABLE calls ADD CONSTRAINT calls_user_id_not_null
@@ -110,20 +113,22 @@ ALTER TABLE calls ADD CONSTRAINT calls_external_ref_key
   UNIQUE USING INDEX calls_external_ref_key;
 ```
 
-Building the index concurrently first keeps writes flowing. Duplicates make the build fail and
-leave an invalid index behind — the finding must report the duplicate count and include the
-cleanup: `DROP INDEX CONCURRENTLY IF EXISTS calls_external_ref_key;`.
+Building the index concurrently first keeps writes flowing. Duplicates make the
+build fail and leave an invalid index behind — the finding must report the
+duplicate count and include the cleanup:
+`DROP INDEX CONCURRENTLY IF EXISTS calls_external_ref_key;`.
 
 ### Add a column with a default
 
-Safe on Postgres 11 and later when the default is not volatile — it is stored as metadata and
-no rewrite happens. `DEFAULT gen_random_uuid()` or `DEFAULT now()` **is** volatile and rewrites
-the table; add the column nullable, backfill, then set the default.
+Safe on Postgres 11 and later when the default is not volatile — it is stored as
+metadata and no rewrite happens. `DEFAULT gen_random_uuid()` or `DEFAULT now()`
+**is** volatile and rewrites the table; add the column nullable, backfill, then
+set the default.
 
 ### Drop a column
 
-Instant metadata change, but it breaks readers, so it belongs in a contract migration. The
-space is not reclaimed until the rows are rewritten.
+Instant metadata change, but it breaks readers, so it belongs in a contract
+migration. The space is not reclaimed until the rows are rewritten.
 
 ### Drop an index
 
@@ -131,8 +136,8 @@ space is not reclaimed until the rows are rewritten.
 DROP INDEX CONCURRENTLY IF EXISTS idx_calls_status;
 ```
 
-Non-breaking, and cheap to reverse — include the `CREATE INDEX CONCURRENTLY` statement that
-restores it in the finding.
+Non-breaking, and cheap to reverse — include the `CREATE INDEX CONCURRENTLY`
+statement that restores it in the finding.
 
 ### Promote a JSONB key to a column
 
@@ -148,19 +153,22 @@ ALTER TABLE calls ADD COLUMN direction text;
 UPDATE calls SET meta = meta - 'direction' WHERE meta ? 'direction';
 ```
 
-Keep the JSONB column. The finding promotes the stable keys, not the whole column.
+Keep the JSONB column. The finding promotes the stable keys, not the whole
+column.
 
 ### Add an enum value
 
-`ALTER TYPE ... ADD VALUE` cannot run inside a transaction block before Postgres 12, and enum
-values cannot be removed. When a set changes at all, a lookup table with an FK is the better
-target — say which one the finding is proposing and why.
+`ALTER TYPE ... ADD VALUE` cannot run inside a transaction block before Postgres
+12, and enum values cannot be removed. When a set changes at all, a lookup table
+with an FK is the better target — say which one the finding is proposing and
+why.
 
 ---
 
 ## Batched backfill
 
-One `UPDATE` over millions of rows holds locks and bloats. Batch it, committing per batch:
+One `UPDATE` over millions of rows holds locks and bloats. Batch it, committing
+per batch:
 
 ```sql
 CREATE OR REPLACE PROCEDURE backfill_calls_user_id_uuid()
@@ -187,14 +195,16 @@ END $$;
 -- CALL backfill_calls_user_id_uuid();
 ```
 
-`CALL` it outside a transaction so the `COMMIT` works. State the estimated runtime from the row
-count in the finding. When a value can fail the cast, the backfill needs a `WHERE` guard and
-the finding must say what happens to the rows it skips.
+`CALL` it outside a transaction so the `COMMIT` works. State the estimated
+runtime from the row count in the finding. When a value can fail the cast, the
+backfill needs a `WHERE` guard and the finding must say what happens to the rows
+it skips.
 
 ---
 
 ## Lock reference
 
+<!-- prettier-ignore -->
 | Operation | Lock | Cost |
 |---|---|---|
 | `ADD COLUMN`, no default or a constant default (PG 11+) | ACCESS EXCLUSIVE | metadata only |
@@ -212,28 +222,32 @@ the finding must say what happens to the rows it skips.
 | `DROP INDEX` | ACCESS EXCLUSIVE | brief |
 | `DROP INDEX CONCURRENTLY` | SHARE UPDATE EXCLUSIVE | brief |
 
-`ACCESS EXCLUSIVE` blocks everything, including reads — and a blocked `ALTER` queues behind a
-long-running query while every later query queues behind *it*. Open migrations that take it
-with a bounded wait:
+`ACCESS EXCLUSIVE` blocks everything, including reads — and a blocked `ALTER`
+queues behind a long-running query while every later query queues behind _it_.
+Open migrations that take it with a bounded wait:
 
 ```sql
 SET lock_timeout = '3s';
 ```
 
-`CONCURRENTLY` cannot run inside a transaction block. Migration tools that wrap each file in
-one need an escape hatch: `-- +goose NO TRANSACTION`, Knex's `config.transaction = false`,
-Rails' `disable_ddl_transaction!`. Name the project's escape hatch in the finding, or put the
-concurrent statement in its own file.
+`CONCURRENTLY` cannot run inside a transaction block. Migration tools that wrap
+each file in one need an escape hatch: `-- +goose NO TRANSACTION`, Knex's
+`config.transaction = false`, Rails' `disable_ddl_transaction!`. Name the
+project's escape hatch in the finding, or put the concurrent statement in its
+own file.
 
 ---
 
 ## Writing the migration files
 
 - One finding per migration file. Never bundle unrelated changes.
-- Name files by the project's existing convention — copy the format from the newest file in the
-  migrations directory, and increment or timestamp accordingly.
+- Name files by the project's existing convention — copy the format from the
+  newest file in the migrations directory, and increment or timestamp
+  accordingly.
 - Open every file with a comment naming the finding and the plan document.
-- `IF EXISTS` and `IF NOT EXISTS` on drops and creates, so a partial run is re-runnable.
-- Include the reversal as a comment when the tool has no `down` step, and as a real `down` when
-  it does.
-- Never write a `down` that silently loses data. Say `-- irreversible: <what is lost>` instead.
+- `IF EXISTS` and `IF NOT EXISTS` on drops and creates, so a partial run is
+  re-runnable.
+- Include the reversal as a comment when the tool has no `down` step, and as a
+  real `down` when it does.
+- Never write a `down` that silently loses data. Say
+  `-- irreversible: <what is lost>` instead.

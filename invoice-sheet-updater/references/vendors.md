@@ -1,11 +1,14 @@
 # Vendor-to-Category Mapping
 
-Reference list of known vendors and their categories for the Purchases 2026 sheet.
+Reference list of known vendors and their categories for the Purchases 2026
+sheet.
 
 ## Cloud Services (0% or 19% VAT)
 
-Digital services, hosting, APIs, SaaS platforms. Most have 0% VAT (EU digital services exemption).
+Digital services, hosting, APIs, SaaS platforms. Most have 0% VAT (EU digital
+services exemption).
 
+<!-- prettier-ignore -->
 | Vendor | Service | Category | Typical VAT |
 |--------|---------|----------|-------------|
 | Vercel | Web hosting, Next.js deployment | Cloud services | 0% |
@@ -20,12 +23,14 @@ Digital services, hosting, APIs, SaaS platforms. Most have 0% VAT (EU digital se
 | OpenAI (if using) | API credits, GPT | Cloud services | 0% |
 | Anthropic (if using) | Claude API | Cloud services | 0% |
 
-**Note:** Double-check invoices for VAT treatment. EU digital services may be 0%, but some providers charge 19% or other rates.
+**Note:** Double-check invoices for VAT treatment. EU digital services may be
+0%, but some providers charge 19% or other rates.
 
 ## IT Hardware (21% VAT)
 
 Physical equipment, peripherals, tools, components.
 
+<!-- prettier-ignore -->
 | Vendor | Product | Category | VAT |
 |--------|---------|----------|-----|
 | Amazon EU S.à r.l. | Electronics, cables, monitors, components | IT Hardware | 21% |
@@ -39,6 +44,7 @@ Physical equipment, peripherals, tools, components.
 
 Mobile, telecom, internet, phone services.
 
+<!-- prettier-ignore -->
 | Vendor | Service | Category | VAT |
 |--------|---------|----------|-----|
 | DIGI SPAIN TELECOM S.L.U. | Mobile line, phone number | Communication services | 21% |
@@ -47,6 +53,7 @@ Mobile, telecom, internet, phone services.
 
 Books, educational materials, training resources. EU reduced VAT rate.
 
+<!-- prettier-ignore -->
 | Vendor | Product | Category | VAT |
 |--------|---------|----------|-----|
 | Amazon EU S.à r.l. | Books, educational ebooks | Books | 4% |

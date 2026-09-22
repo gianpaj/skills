@@ -1,19 +1,27 @@
 ---
 name: github-pr-review
-description: "Use this skill when asked to address, fix, resolve, babysit, or watch GitHub PR review comments and review-bot findings."
+description:
+  "Use this skill when asked to address, fix, resolve, babysit, or watch GitHub
+  PR review comments and review-bot findings."
 ---
 
 # GitHub PR Review Comment Resolution
 
-A repeatable process for fetching unresolved PR review comments, evaluating their validity, applying fixes one commit at a time, running the project's checks, pushing once, replying on GitHub with agent attribution, marking threads as resolved, and, when asked, babysitting the PR until the next review round comes back clean.
+A repeatable process for fetching unresolved PR review comments, evaluating
+their validity, applying fixes one commit at a time, running the project's
+checks, pushing once, replying on GitHub with agent attribution, marking threads
+as resolved, and, when asked, babysitting the PR until the next review round
+comes back clean.
 
-Important: if a thread has been addressed, you must leave a reply on GitHub in that thread before resolving it. Do not resolve addressed threads silently.
+Important: if a thread has been addressed, you must leave a reply on GitHub in
+that thread before resolving it. Do not resolve addressed threads silently.
 
 ## Prerequisites
 
 - `gh` CLI authenticated (`gh auth status`)
 - On the feature branch (`git branch --show-current`)
-- A PR for that branch: `gh pr view --json number,url` gives `{pr}` and, in the URL, `{owner}/{repo}`
+- A PR for that branch: `gh pr view --json number,url` gives `{pr}` and, in the
+  URL, `{owner}/{repo}`
 
 ---
 
@@ -24,8 +32,8 @@ agents (Claude Code, pullfrog, Copilot) usually put a numbered list of findings
 in a review body or a plain PR comment, with at most one or two of them repeated
 inline. Fetch all three before evaluating anything.
 
-Leave `SINCE` empty on a first pass; it then matches everything. Step 8 sets
-it to skip what an earlier round already handled. Run the block as one command,
+Leave `SINCE` empty on a first pass; it then matches everything. Step 8 sets it
+to skip what an earlier round already handled. Run the block as one command,
 since a shell variable does not survive across tool calls.
 
 ```sh
@@ -77,8 +85,8 @@ Then write one checklist before touching code:
 - one item per numbered finding inside an open review body or PR comment
 - a note when the same defect appears in two sources, so one fix closes both
 
-Report the checklist count to the human. If a source was skipped, say so; do
-not report a review as handled from threads alone.
+Report the checklist count to the human. If a source was skipped, say so; do not
+report a review as handled from threads alone.
 
 ---
 
@@ -86,6 +94,7 @@ not report a review as handled from threads alone.
 
 Classify every checklist item before changing any code:
 
+<!-- prettier-ignore -->
 | Decision | Criteria |
 |----------|----------|
 | ✅ Apply | Valid bug, inconsistency, performance issue, or clear improvement that fits the PR scope |
@@ -97,24 +106,27 @@ before the first fix. With no Discuss items there is nothing to ask; start
 fixing. A question raised mid-flow either stalls the round or forces a second
 push, and each push costs a review run (Step 5).
 
-Then fix the Apply items one at a time, in priority order: bugs → performance → consistency → style.
+Then fix the Apply items one at a time, in priority order: bugs → performance →
+consistency → style.
 
 ---
 
 ## Step 3 — Apply Fix and Commit
 
-For each comment being addressed, make the minimal targeted code change, then commit immediately. Commit locally only; pushing is Step 5 and happens once.
+For each comment being addressed, make the minimal targeted code change, then
+commit immediately. Commit locally only; pushing is Step 5 and happens once.
 
 ### Commit message
 
-Follow the `## Commit messages` section of the project's AGENTS.md or user's AGENTS.md.
-In short:
+Follow the `## Commit messages` section of the project's AGENTS.md or user's
+AGENTS.md. In short:
 
 - Conventional Commits syntax: `type(scope): description`
 - imperative mood, subject near 50 characters, no trailing punctuation
-- a body only when it adds useful context or the diff is large: blank line
-  after the subject, wrapped at 72 columns, not repeating the subject
+- a body only when it adds useful context or the diff is large: blank line after
+  the subject, wrapped at 72 columns, not repeating the subject
 
+<!-- prettier-ignore -->
 | Type | When to use |
 |------|-------------|
 | `fix` | Bug fix, incorrect behaviour |
@@ -143,13 +155,13 @@ git add <file> && git commit -m "<type>(<scope>): <description>"
 
 ## Step 4 — Verify Before Pushing
 
-Run the project's checks for the files you touched before the push: tests,
-lint, typecheck, whatever the repo's CI runs. Use the repo's own commands from
-its package scripts, Makefile, or CI workflow rather than guessing.
+Run the project's checks for the files you touched before the push: tests, lint,
+typecheck, whatever the repo's CI runs. Use the repo's own commands from its
+package scripts, Makefile, or CI workflow rather than guessing.
 
-A red check after the push wastes a review run and a babysit round. If a
-check fails, fix it and amend the commit that broke it; nothing is pushed
-yet, so the history is still yours to edit.
+A red check after the push wastes a review run and a babysit round. If a check
+fails, fix it and amend the commit that broke it; nothing is pushed yet, so the
+history is still yours to edit.
 
 ---
 
@@ -159,8 +171,8 @@ Push only after every checklist item is committed or deliberately deferred.
 Every push starts a Pullfrog review run on the PR, and each run spends AI
 credits, so a push per fix multiplies the cost of the review for nothing.
 
-Push before replying: GitHub links a commit SHA in a reply only once the
-commit exists on the remote.
+Push before replying: GitHub links a commit SHA in a reply only once the commit
+exists on the remote.
 
 ```sh
 git push origin <branch-name>
@@ -170,15 +182,18 @@ git push origin <branch-name>
 
 ## Step 6 — Reply on GitHub Before Resolving
 
-This step is required for every addressed thread. If you fixed the issue, you must post a reply on the GitHub thread before resolving it.
+This step is required for every addressed thread. If you fixed the issue, you
+must post a reply on the GitHub thread before resolving it.
 
-Before resolving an addressed thread, leave a reply on the inline review comment that:
+Before resolving an addressed thread, leave a reply on the inline review comment
+that:
 
 - states the thread was addressed
 - identifies the harness and model that wrote the fix
 - includes the commit SHA or a one-line summary whenever possible
 
-Do not skip this reply step for addressed threads. The reply is part of the workflow, not an optional courtesy.
+Do not skip this reply step for addressed threads. The reply is part of the
+workflow, not an optional courtesy.
 
 Use the harness and model exactly as they are known in context, for example
 `Claude Code - Claude Fable 5.1`, `Codex - GPT-5.6`, or `Zed - GPT-5.6-Astra`.
@@ -207,7 +222,8 @@ The timestamp concern is superseded by the final HEAD run and cleaned history. T
 Zed - GPT-5.6-Astra
 ```
 
-Don't use back quotes for commit hash. Github will add links if left like in the example.
+Don't use back quotes for commit hash. Github will add links if left like in the
+example.
 
 ### Reply command
 
@@ -218,12 +234,13 @@ gh api repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}/replies \
   -f body=$'Addressed in <commit_sha>: <short summary>\n\n<Harness> - <Model>'
 ```
 
-For threads that were intentionally deferred, leave the thread open. Add a reply only when that context helps the reviewer understand why it stays open.
+For threads that were intentionally deferred, leave the thread open. Add a reply
+only when that context helps the reviewer understand why it stays open.
 
 ### Findings that have no thread
 
-A review body or a PR comment cannot be resolved. Close its findings with one
-PR comment in the multi-fact format above, listing the commit per finding and
+A review body or a PR comment cannot be resolved. Close its findings with one PR
+comment in the multi-fact format above, listing the commit per finding and
 naming each finding left open with the reason:
 
 ```sh
@@ -243,7 +260,8 @@ Rule of thumb:
 
 ## Step 7 — Resolve Threads on GitHub
 
-Use the GraphQL `resolveReviewThread` mutation with the thread `PRRT_*` id from Step 1.
+Use the GraphQL `resolveReviewThread` mutation with the thread `PRRT_*` id from
+Step 1.
 
 Only do this after Step 6 has been completed for that addressed thread:
 
@@ -262,16 +280,18 @@ mutation {
 }'
 ```
 
-Repeat for each addressed thread. Verify the response contains `"isResolved": true`.
+Repeat for each addressed thread. Verify the response contains
+`"isResolved": true`.
 
-For threads that were **skipped**, do not resolve them — leave them open so reviewers know they were intentionally deferred.
+For threads that were **skipped**, do not resolve them — leave them open so
+reviewers know they were intentionally deferred.
 
 ---
 
 ## Step 8 — Babysit the PR (only when asked)
 
-Skip this step unless the human asked you to babysit, watch, or follow up on
-the PR. Each round costs a Pullfrog review run.
+Skip this step unless the human asked you to babysit, watch, or follow up on the
+PR. Each round costs a Pullfrog review run.
 
 After the push in Step 5, wait for the checks:
 
@@ -281,28 +301,28 @@ After the push in Step 5, wait for the checks:
 gh pr checks {pr} --repo {owner}/{repo} --watch
 ```
 
-Then re-run the Step 1 block in one command, with `SINCE` set to the pushed
-head commit's date instead of empty:
+Then re-run the Step 1 block in one command, with `SINCE` set to the pushed head
+commit's date instead of empty:
 
 ```sh
 SINCE=$(gh pr view {pr} --repo {owner}/{repo} --json commits --jq '.commits[-1].committedDate')
 # ...followed by the three fetch commands from Step 1, unchanged
 ```
 
-Your own replies from Step 6 pass this filter too; skip them. A failed check
-is a finding too: read its log and add it to the checklist.
+Your own replies from Step 6 pass this filter too; skip them. A failed check is
+a finding too: read its log and add it to the checklist.
 
 Then:
 
 - No new findings and green checks: report that to the human and stop.
-- New findings: build a fresh checklist and run Steps 2-7 on it. Valid ones
-  get a fix and a commit; invalid ones get a reply with the reason and stay
-  open. Push once, after the whole round is committed, then watch again.
-- A round with no valid finding ends the loop. Do not push; there is nothing
-  new for Pullfrog to review.
+- New findings: build a fresh checklist and run Steps 2-7 on it. Valid ones get
+  a fix and a commit; invalid ones get a reply with the reason and stay open.
+  Push once, after the whole round is committed, then watch again.
+- A round with no valid finding ends the loop. Do not push; there is nothing new
+  for Pullfrog to review.
 
-Stop after three rounds even if findings keep coming, and hand the open ones
-to the human. A reviewer that keeps producing findings is either right about
+Stop after three rounds even if findings keep coming, and hand the open ones to
+the human. A reviewer that keeps producing findings is either right about
 something structural or looping on style, and both need a human call.
 
 ---
@@ -345,15 +365,28 @@ Asked to babysit? ──► gh pr checks --watch ──► new findings? ──�
 
 ## Key Rules
 
-- **Threads are not the review** — a review body or PR comment can hold more findings than every inline thread combined; the checklist covers all three sources
-- **Ask once** — classify every item first; if any are Discuss, ask about all of them in one message before the first fix, never one at a time mid-flow
+- **Threads are not the review** — a review body or PR comment can hold more
+  findings than every inline thread combined; the checklist covers all three
+  sources
+- **Ask once** — classify every item first; if any are Discuss, ask about all of
+  them in one message before the first fix, never one at a time mid-flow
 - **One fix, one commit** — never batch multiple fixes into a single commit
-- **Verify before push** — run the repo's checks on the touched files; a red check after the push wastes a review run
-- **Push once** — every push starts a Pullfrog review run that spends AI credits; push after the whole checklist is committed or deferred, never per fix
-- **Babysit only when asked** — watch checks and re-fetch findings after a push only when the human asks; stop after three rounds or after a round with no valid finding
-- **Commit style from AGENTS.md** — Conventional Commits, imperative, subject near 50 characters, body only when it adds context
-- **Reply before resolve** — every addressed thread gets a GitHub reply before resolution
-- **Identify the writer** — the reply ends with the harness and model, such as `Claude Code - Claude Fable 5.1`
+- **Verify before push** — run the repo's checks on the touched files; a red
+  check after the push wastes a review run
+- **Push once** — every push starts a Pullfrog review run that spends AI
+  credits; push after the whole checklist is committed or deferred, never per
+  fix
+- **Babysit only when asked** — watch checks and re-fetch findings after a push
+  only when the human asks; stop after three rounds or after a round with no
+  valid finding
+- **Commit style from AGENTS.md** — Conventional Commits, imperative, subject
+  near 50 characters, body only when it adds context
+- **Reply before resolve** — every addressed thread gets a GitHub reply before
+  resolution
+- **Identify the writer** — the reply ends with the harness and model, such as
+  `Claude Code - Claude Fable 5.1`
 - **Resolve only what you fixed** — do not resolve threads for skipped comments
-- **Two ids per thread** — the comment `databaseId` receives the reply, the thread `PRRT_*` id goes to `resolveReviewThread`; Step 1 returns both
-- **Verify resolution** — check `"isResolved": true` in the mutation response before moving on
+- **Two ids per thread** — the comment `databaseId` receives the reply, the
+  thread `PRRT_*` id goes to `resolveReviewThread`; Step 1 returns both
+- **Verify resolution** — check `"isResolved": true` in the mutation response
+  before moving on

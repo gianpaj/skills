@@ -1,19 +1,18 @@
 # Schema smell catalog
 
-Work these categories against the chosen cluster. Each row gives the smell, how to detect it,
-**when it is fine** — the column that keeps this skill from generating noise — and the fix.
+Work these categories against the chosen cluster. Each row gives the smell, how
+to detect it, **when it is fine** — the column that keeps this skill from
+generating noise — and the fix.
 
-Severity guidance: **high** means the schema permits or hides wrong data. **medium** means it
-costs real work on every read or write. **low** means it only costs comprehension.
+Severity guidance: **high** means the schema permits or hides wrong data.
+**medium** means it costs real work on every read or write. **low** means it
+only costs comprehension.
 
 ---
 
 ## 1. Naming and conventions
 
-Consistency matters more than which convention wins. Derive the house style from the majority
-of existing tables, and report the minority as the deviation — never impose a style the schema
-does not already use.
-
+<!-- prettier-ignore -->
 | Smell | Detect | When it's fine | Fix |
 |---|---|---|---|
 | Mixed case styles (`userId` beside `user_id`) | Column names against the majority style | The minority came from an external system that owns the shape | Rename the minority — breaking |
@@ -24,17 +23,22 @@ does not already use.
 | Booleans without `is_` / `has_` (`calls.active`) | Boolean columns | The name already reads as a predicate | Rename — breaking |
 | Reserved words as identifiers (`order`, `user`, `end`) | Quoted identifiers in the schema dump | The quoting is confined to generated code | Rename — breaking |
 | Cryptic abbreviations (`ct`, `flg`, `dt1`) | Names under four characters, or no vowels | Domain jargon a junior on this team already knows | Rename — breaking |
+Consistency matters more than which convention wins. Derive the house style from
+the majority of existing tables, and report the minority as the deviation —
+never impose a style the schema does not already use.
 
-**Severity is low for all of these** unless the name is actively misleading — a column whose
-name states one thing and holds another. That is high, because it produces wrong code.
+**Severity is low for all of these** unless the name is actively misleading — a
+column whose name states one thing and holds another. That is high, because it
+produces wrong code.
 
 ---
 
 ## 2. Dead schema
 
-The category with the highest false-positive rate. Every finding here needs both a code-side
-and a data-side check before it becomes a proposal.
+The category with the highest false-positive rate. Every finding here needs both
+a code-side and a data-side check before it becomes a proposal.
 
+<!-- prettier-ignore -->
 | Smell | Detect | When it's fine | Fix |
 |---|---|---|---|
 | Column entirely null | `count(col)` = 0 over the table | Column is newly added and being backfilled | `DROP COLUMN` — breaking |
@@ -46,19 +50,19 @@ and a data-side check before it becomes a proposal.
 | View nothing selects from | No call sites, no dependent views | Consumed by BI, analysts, or a dashboard outside the repo | Ask before proposing |
 | Sequence owned by nothing | `pg_depend` has no owning column | Called directly by app code | `DROP SEQUENCE` — non-breaking |
 
-**Always report the stats reset time alongside any zero-scan index claim.** An index unused
-since a reset yesterday is not an unused index.
+**Always report the stats reset time alongside any zero-scan index claim.** An
+index unused since a reset yesterday is not an unused index.
 
-**A never-analyzed table reports zero rows.** `est_rows` comes from `ANALYZE`; a table that has
-never been analyzed reports 0 no matter how much data it holds — only `total_size` gives it
-away. Check `last_analyzed` before calling anything empty.
+**A never-analyzed table reports zero rows.** `est_rows` comes from `ANALYZE`; a
+table that has never been analyzed reports 0 no matter how much data it holds —
+only `total_size` gives it away. Check `last_analyzed` before calling anything
+empty.
 
 ---
 
 ## 3. Types and correctness
 
-Highest-value category. These findings are about data the schema currently allows to be wrong.
-
+<!-- prettier-ignore -->
 | Smell | Detect | When it's fine | Fix |
 |---|---|---|---|
 | Table without a primary key | No `contype = 'p'` constraint | Append-only event log where a PK adds cost for no benefit — but say so | Add PK — usually non-breaking |
@@ -72,11 +76,14 @@ Highest-value category. These findings are about data the schema currently allow
 | Boolean encoded as text or integer | `'Y'` / `'N'` / `0` / `1` in a text or int column | The column has a third state — then it wants an enum, not a boolean | `boolean`, or an enum if there are three states — breaking |
 | Check constraint duplicated in app code | Same range or format validated in both places | Defence in depth, deliberately | Keep the database constraint; note the redundancy without proposing a change |
 | `ON DELETE` unspecified on an FK | FK with default `NO ACTION` | The default is what the domain wants — say which one it is | Set the intended action explicitly — non-breaking |
+Highest-value category. These findings are about data the schema currently
+allows to be wrong.
 
 ---
 
 ## 4. Redundancy
 
+<!-- prettier-ignore -->
 | Smell | Detect | When it's fine | Fix |
 |---|---|---|---|
 | Identical indexes | Same table, columns, opclass, predicate | Never | Drop one — non-breaking |
@@ -91,9 +98,10 @@ Highest-value category. These findings are about data the schema currently allow
 
 ## 5. Structure
 
-The findings here are the largest and the easiest to over-reach on. Propose one structural
-change per run at most, and only with call-site evidence.
+The findings here are the largest and the easiest to over-reach on. Propose one
+structural change per run at most, and only with call-site evidence.
 
+<!-- prettier-ignore -->
 | Smell | Detect | When it's fine | Fix |
 |---|---|---|---|
 | Junk-drawer JSONB | Same keys present in nearly every row, queried with `->>` in `WHERE` | Genuinely heterogeneous payloads, or a third-party blob stored verbatim | Promote the stable keys to columns; keep the rest in JSONB — breaking |
@@ -109,9 +117,10 @@ change per run at most, and only with call-site evidence.
 
 ## 6. Access and RLS
 
-Only applies where the schema already uses row-level security. Skip the category otherwise
-rather than proposing that a project adopt RLS.
+Only applies where the schema already uses row-level security. Skip the category
+otherwise rather than proposing that a project adopt RLS.
 
+<!-- prettier-ignore -->
 | Smell | Detect | When it's fine | Fix |
 |---|---|---|---|
 | Table without RLS in an RLS-using schema | `relrowsecurity = false` where sibling tables have it | Reference or lookup data that is public by design | `ENABLE ROW LEVEL SECURITY` plus policies — behaviour-changing, flag as high |
@@ -126,6 +135,7 @@ rather than proposing that a project adopt RLS.
 
 Use these defaults, then adjust with reason stated:
 
+<!-- prettier-ignore -->
 | Category | Default severity |
 |---|---|
 | Missing PK, missing FK with orphans, wrong type holding wrong data | high |

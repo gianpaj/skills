@@ -1,18 +1,25 @@
 ---
 name: setup-new-domain
-description: Set up a newly registered domain across its registrar, authoritative DNS provider, search-engine ownership verification, TLS, and optional inbound email routing. Use for new-domain launches, Cloudflare onboarding, nameserver changes, DNS migration, Google Search Console domain verification, or catch-all email forwarding. Defaults to Spaceship, Cloudflare, Google Search Console, and an existing Gmail destination while remaining provider-flexible.
+description:
+  Set up a newly registered domain across its registrar, authoritative DNS
+  provider, search-engine ownership verification, TLS, and optional inbound
+  email routing. Use for new-domain launches, Cloudflare onboarding, nameserver
+  changes, DNS migration, Google Search Console domain verification, or
+  catch-all email forwarding. Defaults to Spaceship, Cloudflare, Google Search
+  Console, and an existing Gmail destination while remaining provider-flexible.
 ---
 
 # Setup New Domain
 
-Launch a registered domain through a staged workflow that preserves existing DNS,
-pauses at sensitive changes, and verifies provider state against public DNS.
+Launch a registered domain through a staged workflow that preserves existing
+DNS, pauses at sensitive changes, and verifies provider state against public
+DNS.
 
 ## Boundaries
 
 - Start after the domain has been registered.
-- Do not purchase a domain, create consumer accounts, choose a web host, or create
-  passwords unless the user explicitly expands the task.
+- Do not purchase a domain, create consumer accounts, choose a web host, or
+  create passwords unless the user explicitly expands the task.
 - Pause for the user to enter passwords, passkeys, recovery information, CAPTCHA
   responses, payment details, and two-factor authentication. Never ask them to
   paste secrets or one-time codes into chat.
@@ -23,16 +30,16 @@ pauses at sensitive changes, and verifies provider state against public DNS.
 
 1. Prefer a purpose-built provider connector or API when it supports the exact
    operation and the user has connected it.
-2. Otherwise use an authenticated browser session. Use Computer Use when the user
-   asks to work in local apps or existing browser tabs.
+2. Otherwise use an authenticated browser session. Use Computer Use when the
+   user asks to work in local apps or existing browser tabs.
 3. Use public DNS lookups to verify delegation and records independently of the
    provider UI.
-4. If access is missing, complete safe preparation and ask for the smallest exact
-   user action needed to continue.
+4. If access is missing, complete safe preparation and ask for the smallest
+   exact user action needed to continue.
 
-Do not open a new browser profile when the requested account is already signed in
-elsewhere. Do not grant broad OAuth access when a narrow DNS verification record
-satisfies the task.
+Do not open a new browser profile when the requested account is already signed
+in elsewhere. Do not grant broad OAuth access when a narrow DNS verification
+record satisfies the task.
 
 ## Stage 1: Establish Intent and Baseline
 
@@ -45,11 +52,12 @@ Collect or infer:
 - web origin or hosting destination, if known;
 - search ownership service and account;
 - whether inbound email routing is wanted;
-- existing destination mailbox and desired custom addresses or catch-all behavior.
+- existing destination mailbox and desired custom addresses or catch-all
+  behavior.
 
 Ask only for information that cannot be discovered safely. Before changing DNS,
-capture the current nameservers and all visible records. When possible, corroborate
-them with public NS, A/AAAA, CNAME, MX, and TXT lookups.
+capture the current nameservers and all visible records. When possible,
+corroborate them with public NS, A/AAAA, CNAME, MX, and TXT lookups.
 
 Do not infer that registrar parking records are the intended production website.
 Do not invent an origin, `www` record, redirect, mail route, or service record.
@@ -64,8 +72,8 @@ Do not invent an origin, `www` record, redirect, mail route, or service record.
 6. Record the assigned authoritative nameservers exactly.
 
 For the default stack, add the zone to Cloudflare and use its assigned pair of
-nameservers. Treat Cloudflare's scan as a starting point, not an authoritative copy
-of the old zone.
+nameservers. Treat Cloudflare's scan as a starting point, not an authoritative
+copy of the old zone.
 
 ## Stage 3: Change Delegation
 
@@ -84,13 +92,13 @@ Verify both:
 - the DNS provider reports the zone as active; and
 - public NS queries return the assigned nameservers.
 
-If propagation is incomplete, report it as pending and retain the values needed to
-resume. Do not repeatedly change delegation while waiting.
+If propagation is incomplete, report it as pending and retain the values needed
+to resume. Do not repeatedly change delegation while waiting.
 
 ## Stage 4: Check Web DNS and TLS
 
-Check the apex and `www` behavior against the stated intent. If no web origin was
-provided, report that hosting remains undecided instead of creating records.
+Check the apex and `www` behavior against the stated intent. If no web origin
+was provided, report that hosting remains undecided instead of creating records.
 
 When using Cloudflare:
 
@@ -98,7 +106,8 @@ When using Cloudflare:
 - report Universal SSL as active, pending, or failed;
 - do not enable Always Use HTTPS, HSTS, redirects, or strict TLS modes without a
   known working origin and explicit intent;
-- do not claim the website is ready merely because the Cloudflare zone is active.
+- do not claim the website is ready merely because the Cloudflare zone is
+  active.
 
 ## Stage 5: Verify Search Ownership
 
@@ -108,8 +117,9 @@ prefix property.
 1. Request the DNS verification method.
 2. Copy the exact TXT value and confirm the requested host/name.
 3. Check for existing TXT records; add rather than replace unrelated values.
-4. Immediately before saving the persistent ownership record, show the exact host
-   and value and obtain confirmation when the active control policy requires it.
+4. Immediately before saving the persistent ownership record, show the exact
+   host and value and obtain confirmation when the active control policy
+   requires it.
 5. Verify ownership in Search Console.
 6. Preserve the TXT record after verification.
 
@@ -119,14 +129,14 @@ record host, and propagation before editing the value.
 ## Stage 6: Configure Optional Email Routing
 
 Proceed only when the destination mailbox exists and can receive a verification
-message. Verify the provider's current requirements rather than relying on stale MX
-or TXT values.
+message. Verify the provider's current requirements rather than relying on stale
+MX or TXT values.
 
 Before activating email routing:
 
 1. Inspect all existing MX and SPF records.
-2. Explain that mail delivery will change and that forwarding does not necessarily
-   provide outbound sending or mailbox storage.
+2. Explain that mail delivery will change and that forwarding does not
+   necessarily provide outbound sending or mailbox storage.
 3. Identify any conflict with an existing mail provider.
 4. Show the destination and whether the route is custom-address or catch-all.
 5. Obtain action-time confirmation for MX, SPF, routing, and catch-all changes.
@@ -139,11 +149,12 @@ Then:
 3. Send and complete the destination verification.
 4. Create the requested address rules or catch-all route.
 5. Verify that routing is enabled and the destination is marked verified.
-6. When practical, test delivery with a non-sensitive message from another mailbox.
+6. When practical, test delivery with a non-sensitive message from another
+   mailbox.
 
-For the default stack, use Cloudflare Email Routing to forward inbound mail to an
-existing Gmail address. Never configure a route to a proposed Gmail address whose
-account creation has not completed.
+For the default stack, use Cloudflare Email Routing to forward inbound mail to
+an existing Gmail address. Never configure a route to a proposed Gmail address
+whose account creation has not completed.
 
 ## Sensitive-Change Gates
 
@@ -166,7 +177,8 @@ Before reporting completion, verify every in-scope item:
 
 - authoritative provider zone is active;
 - public NS records match the assigned nameservers;
-- intended apex and `www` records answer as expected, or are explicitly undecided;
+- intended apex and `www` records answer as expected, or are explicitly
+  undecided;
 - TLS status is active or clearly reported as pending/failed;
 - search ownership service reports verified;
 - verification TXT remains present;

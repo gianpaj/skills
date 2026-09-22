@@ -8,10 +8,12 @@ Reference for the exact column structure and data entry format.
 - **Tab Name:** `Purchases 2026`
 - **Data Range:** Starts at row 2 (row 1 has headers)
 - **Last Data Row:** Varies (check before inserting new entries)
-- **Summary Section:** Begins 2-3 rows after last data entry (contains totals, tax calculations)
+- **Summary Section:** Begins 2-3 rows after last data entry (contains totals,
+  tax calculations)
 
 ## Column Structure
 
+<!-- prettier-ignore -->
 | Col | Column Name | Data Type | Required? | Format | Notes |
 |-----|-------------|-----------|-----------|--------|-------|
 | A | To send to accountant | Checkbox | No | Leave empty | For manual review tracking |
@@ -37,14 +39,17 @@ Reference for the exact column structure and data entry format.
 
 ### Invoice Number (Column C)
 
-- **Format:** Vendor's invoice reference (alphanumeric, may include letters, numbers, dashes)
+- **Format:** Vendor's invoice reference (alphanumeric, may include letters,
+  numbers, dashes)
 - **Examples:** `081000858069`, `B2081410-0007`, `IN-59067839`, `5485443147`
 - **Source:** From invoice document
-- **Validation:** Non-empty, unique per vendor (but different vendors may reuse numbers)
+- **Validation:** Non-empty, unique per vendor (but different vendors may reuse
+  numbers)
 
 ### Description (Column D)
 
-- **Format:** "{Vendor Name} - Invoice {Number}" or "{Vendor Name} - {Service} Invoice {Number}"
+- **Format:** "{Vendor Name} - Invoice {Number}" or "{Vendor Name} - {Service}
+  Invoice {Number}"
 - **Examples:**
   - Hetzner Online GmbH - Invoice 081000858069
   - Google Cloud – Fee for Jan 2026
@@ -131,6 +136,7 @@ gog sheets get "SHEET_ID" "Purchases 2026!B35:B50" --plain
 ```
 
 Data structure example:
+
 ```
 Row 2:  First entry (Jan 1, 2026)
 ...
@@ -144,6 +150,7 @@ Insert new entries in the next available row before the summary section.
 
 ## Common Data Entry Mistakes
 
+<!-- prettier-ignore -->
 | Mistake | Example | Fix |
 |---------|---------|-----|
 | Wrong decimal separator | €17.58 | Use comma: €17,58 |
@@ -165,7 +172,8 @@ Row N+2: "Total VAT amount" | <SUM of column I>
 Row N+3: <more calculations>
 ```
 
-**Do not insert new entries in the summary section.** Always add new entries before the summary starts.
+**Do not insert new entries in the summary section.** Always add new entries
+before the summary starts.
 
 ---
 

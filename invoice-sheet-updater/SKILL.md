@@ -5,24 +5,30 @@ description: Read forwarded invoice emails from gianpa@gmail.com, extract invoic
 
 # Invoice Sheet Updater
 
-Automate invoice processing: find forwarded emails from gianpa@gmail.com, extract invoice details, and update the Google Sheets expense tracker.
+Automate invoice processing: find forwarded emails from gianpa@gmail.com,
+extract invoice details, and update the Google Sheets expense tracker.
 
 ## Quick Start
 
 When a forwarded invoice email arrives:
 
 1. **Search Gmail** for the forwarded invoice using `gog gmail search`
-2. **Extract details** from the email and/or PDF attachment (date, invoice #, amount, vendor, category)
-3. **Map the vendor** to appropriate category (Cloud services, IT Hardware, Communication, etc.)
+2. **Extract details** from the email and/or PDF attachment (date, invoice #,
+   amount, vendor, category)
+3. **Map the vendor** to appropriate category (Cloud services, IT Hardware,
+   Communication, etc.)
 4. **Calculate VAT & totals** (columns I and J are NOT auto-calculated)
 5. **Update the sheet** using pipe-separated values in one command
 6. **Verify** the entry appears correctly in the Purchases 2026 tab
 
 ## Key Resources
 
-- **Quick Reference:** [QUICK_REFERENCE.md](QUICK_REFERENCE.md) — 7-step workflow, common commands, troubleshooting
-- **Vendor Mappings:** [references/vendors.md](references/vendors.md) — 20+ vendors with categories and VAT rates
-- **Sheet Schema:** [references/sheet-schema.md](references/sheet-schema.md) — column structure, data formats, validation rules
+- **Quick Reference:** [QUICK_REFERENCE.md](QUICK_REFERENCE.md) — 7-step
+  workflow, common commands, troubleshooting
+- **Vendor Mappings:** [references/vendors.md](references/vendors.md) — 20+
+  vendors with categories and VAT rates
+- **Sheet Schema:** [references/sheet-schema.md](references/sheet-schema.md) —
+  column structure, data formats, validation rules
 
 ## Workflow: Processing a Forwarded Invoice
 
@@ -34,7 +40,8 @@ Use Gmail search to find the forwarded invoice:
 gog gmail search "Fwd: {vendor_name}" --plain
 ```
 
-The email subject will typically be: `Fwd: {Vendor} - Invoice {number}` or `Fwd: {Vendor} Invoice...`
+The email subject will typically be: `Fwd: {Vendor} - Invoice {number}` or
+`Fwd: {Vendor} Invoice...`
 
 Get the full email details:
 
@@ -50,20 +57,26 @@ From the email body and/or PDF attachment, extract:
 - **Invoice Number**: Unique invoice identifier
 - **Amount**: Total amount (shown in invoice, use this to calculate backward)
 - **Vendor Name**: Full vendor/company name
-- **Category**: Maps to one of the predefined categories (see references/vendors.md)
+- **Category**: Maps to one of the predefined categories (see
+  references/vendors.md)
 - **Tax %**: VAT rate (21%, 19%, 4%, or blank for 0%)
 - **Currency**: Note if invoice is in USD, GBP, or other non-EUR currency
 
-**For PDF attachments:** Download using `gog gmail attachment` and read with `pdf` tool to extract structured data.
+**For PDF attachments:** Download using `gog gmail attachment` and read with
+`pdf` tool to extract structured data.
 
 **Currency Conversion (if needed):**
+
 - Sheet uses EUR (€) for all amounts
-- If invoice is in USD: Get the closing rate for that invoice date from https://www.exchangerates.org.uk/USD-EUR-exchange-rate-history.html
+- If invoice is in USD: Get the closing rate for that invoice date from
+  <https://www.exchangerates.org.uk/USD-EUR-exchange-rate-history.html>
 - Example: X.AI invoice dated 03/05/2026 had closing rate 1 USD = 0.85222 EUR
 - Calculate: USD amount × closing rate = EUR amount
-- Once converted, treat as EUR amount in the sheet (no VAT for US digital services)
+- Once converted, treat as EUR amount in the sheet (no VAT for US digital
+  services)
 
 **Important notes:**
+
 - The invoice total shown is usually WITH VAT (the final amount)
 - Dates must be in DD/MM/YYYY format
 - For EU vendors, assume 21% VAT unless invoice specifies otherwise
@@ -72,29 +85,36 @@ From the email body and/or PDF attachment, extract:
 
 ### 3. Map Vendor to Category
 
-Refer to [references/vendors.md](references/vendors.md) for known vendor-category mappings. Categories include:
+Refer to [references/vendors.md](references/vendors.md) for known
+vendor-category mappings. Categories include:
 
-- **Cloud services** - Hosting, APIs, SaaS platforms (Vercel, Fly.io, Hetzner, X.AI, Google Cloud, etc.)
-- **IT Hardware** - Equipment, peripherals, tools (Amazon purchases, cables, monitors, etc.)
+- **Cloud services** - Hosting, APIs, SaaS platforms (Vercel, Fly.io, Hetzner,
+  X.AI, Google Cloud, etc.)
+- **IT Hardware** - Equipment, peripherals, tools (Amazon purchases, cables,
+  monitors, etc.)
 - **Communication services** - Mobile, phone, telecom (DIGI SPAIN, etc.)
 - **Books** - Professional development, learning materials (4% VAT)
 - **Other** - Miscellaneous purchases
 
 ### 4. Calculate VAT and Total Amounts
 
-**The sheet does NOT auto-calculate VAT or totals. You must calculate these manually.**
+**The sheet does NOT auto-calculate VAT or totals. You must calculate these
+manually.**
 
 If invoice shows €3,00 total with 21% VAT:
+
 1. Calculate amount WITHOUT VAT: €3,00 ÷ 1.21 = €2,48 (column G)
 2. Calculate VAT amount: €2,48 × 0.21 = €0,52 (column I)
 3. Total with VAT: €2,48 + €0,52 = €3,00 (column J)
 
 **Formulas:**
+
 - Column G (without VAT): Total ÷ (1 + Tax%/100)
 - Column I (VAT): G × Tax% ÷ 100
 - Column J (with VAT): G + I
 
 Example: If invoice is €3,00 with 21% tax:
+
 - G = 3.00 ÷ 1.21 = 2.48
 - I = 2.48 × 0.21 = 0.52
 - J = 2.48 + 0.52 = 3.00
@@ -103,7 +123,7 @@ Example: If invoice is €3,00 with 21% tax:
 
 The Purchases 2026 sheet has this structure:
 
-```
+```text
 Col A: To send to accountant (checkbox, leave empty)
 Col B: Date (DD/MM/YYYY)
 Col C: Invoice num (text)
@@ -117,9 +137,11 @@ Col J: Total EUR with VAT (numeric: 3.00 displays as €3,00)
 Col K: Amount USD with VAT (auto-calculated)
 ```
 
-**CRITICAL FINDING:** Columns I and J are NOT auto-calculated by formulas. They must be manually calculated and entered.
+**CRITICAL FINDING:** Columns I and J are NOT auto-calculated by formulas. They
+must be manually calculated and entered.
 
-Find the next available row in the Purchases 2026 tab, then update the entire row in one command:
+Find the next available row in the Purchases 2026 tab, then update the entire
+row in one command:
 
 ```bash
 # Find next empty row by checking current data with:
@@ -140,6 +162,7 @@ gog sheets get "SHEET_ID" "Purchases 2026!B{row}:J{row}" --plain
 ```
 
 Verify:
+
 - Date is in DD/MM/YYYY format
 - Amount shows correct value without VAT (2.48)
 - VAT amount shows correct percentage (21%)
@@ -150,6 +173,7 @@ Verify:
 ## Critical Data Entry Rules
 
 ### Column G (Amount without VAT)
+
 **Enter as decimal number (e.g., `2.48` NOT `€2,48`)**
 
 - The sheet applies € currency formatting automatically
@@ -158,6 +182,7 @@ Verify:
 - Do NOT include the € symbol when entering via CLI
 
 ### Column H (Tax %)
+
 **Enter with percent sign (e.g., `21%`, `0%`, or blank)**
 
 - Valid values: `21%`, `19%`, `4%`, `0%`, or leave blank
@@ -165,6 +190,7 @@ Verify:
 - Do NOT use just the number (21, not 21%)
 
 ### Column I (VAT Amount)
+
 **Calculate and enter as decimal (e.g., `0.52`)**
 
 - Formula: Amount (G) × Tax% (H) ÷ 100
@@ -173,6 +199,7 @@ Verify:
 - Round to 2 decimal places
 
 ### Column J (Total with VAT)
+
 **Calculate and enter as decimal (e.g., `3.00`)**
 
 - Formula: Amount (G) + VAT Amount (I)
@@ -183,11 +210,14 @@ Verify:
 ## Why Decimals Instead of €XX,XX Format?
 
 The `gog sheets` CLI tool has quirks with formatted currency:
+
 - Values entered with € and commas may be truncated (€2,48 becomes €2,00)
 - The comma character is interpreted as a field separator
 - The € symbol is sometimes stripped or mishandled
 
-**Solution:** Enter plain decimal numbers (2.48, 0.52, 3.00). The sheet's built-in number formatting applies the € symbol and comma automatically, so the display shows correctly (€2,48, €0,52, €3,00).
+**Solution:** Enter plain decimal numbers (2.48, 0.52, 3.00). The sheet's
+built-in number formatting applies the € symbol and comma automatically, so the
+display shows correctly (€2,48, €0,52, €3,00).
 
 ## Common Invoice Types
 
@@ -247,7 +277,8 @@ Before saving, verify:
 
 ## Example: Complete Invoice Processing
 
-**Scenario:** Email from DIGI forwarded on May 3, 2026 with invoice €3,00 (21% VAT)
+**Scenario:** Email from DIGI forwarded on May 3, 2026 with invoice €3,00 (21%
+VAT)
 
 ```bash
 # 1. Find the email
@@ -279,8 +310,10 @@ gog sheets get "SHEET_ID" "Purchases 2026!B36:J36" --plain
 If data entry fails or shows wrong values:
 
 1. **Check the row number** - Make sure you're updating the correct row
-2. **Verify the data format** - Ensure amounts are decimals (2.48 not €2,48), tax is percent (21%)
-3. **Re-verify the sheet** - Fetch the range again to see what was actually written
+2. **Verify the data format** - Ensure amounts are decimals (2.48 not €2,48),
+   tax is percent (21%)
+3. **Re-verify the sheet** - Fetch the range again to see what was actually
+   written
 4. **Correct individual cells** - If one field is wrong, update just that cell
 5. **Recalculate totals** - If amount changes, recalculate VAT and total
 
@@ -304,6 +337,7 @@ gog sheets get "SHEET_ID" "Purchases 2026!B42:J42" --plain
 **Tab Name:** `Purchases 2026`
 
 **Key Notes:**
+
 - Column J (total with VAT) is NOT auto-calculated - must enter manually
 - Column K (USD equivalent) appears to auto-calculate from column J
 - Date format must be strict: DD/MM/YYYY (e.g., 27/04/2026, not 04/27/2026)
@@ -314,4 +348,5 @@ gog sheets get "SHEET_ID" "Purchases 2026!B42:J42" --plain
 ---
 
 **Last Updated:** May 3, 2026  
-**Learned:** Columns I and J require manual VAT/total calculation; use decimals not formatted currency
+**Learned:** Columns I and J require manual VAT/total calculation; use decimals
+not formatted currency
