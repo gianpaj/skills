@@ -5,7 +5,7 @@ description: "Use this skill when asked to address, fix, or resolve GitHub PR re
 
 # GitHub PR Review Comment Resolution
 
-A repeatable process for fetching unresolved PR review comments, evaluating their validity, applying fixes one at a time with proper commit messages, replying on GitHub with agent attribution, and then marking threads as resolved.
+A repeatable process for fetching unresolved PR review comments, evaluating their validity, applying fixes one commit at a time, pushing once, replying on GitHub with agent attribution, marking threads as resolved, and, when asked, babysitting the PR until the next review round comes back clean.
 
 Important: if a thread has been addressed, you must leave a reply on GitHub in that thread before resolving it. Do not resolve addressed threads silently.
 
@@ -95,7 +95,7 @@ Work through comments **one at a time**, in priority order: bugs → performance
 
 ## Step 4 — Apply Fix and Commit
 
-For each comment being addressed, make the minimal targeted code change, then commit immediately using commitlint-style messages:
+For each comment being addressed, make the minimal targeted code change, then commit immediately using commitlint-style messages. Commit locally only; pushing is Step 5 and happens once.
 
 ### Commit message format
 
@@ -130,9 +130,14 @@ git add <file> && git commit -m "<type>(<scope>): <description>"
 
 ---
 
-## Step 5 — Push to Remote
+## Step 5 — Push Once
 
-After all commits are done, push the branch:
+Push only after every checklist item is committed or deliberately deferred.
+Every push starts a Pullfrog review run on the PR, and each run spends AI
+credits, so a push per fix multiplies the cost of the review for nothing.
+
+Push before replying: GitHub links a commit SHA in a reply only once the
+commit exists on the remote.
 
 ```sh
 git push origin <branch-name>
@@ -243,6 +248,51 @@ For threads that were **skipped**, do not resolve them — leave them open so re
 
 ---
 
+## Step 8 — Babysit the PR (only when asked)
+
+Skip this step unless the human asked you to babysit, watch, or follow up on
+the PR. Each round costs a Pullfrog review run.
+
+After the push in Step 5, wait for the checks:
+
+```sh
+# Blocks until every check finishes, including the Pullfrog review workflow.
+# If it reports no checks yet, wait ten seconds and run it again.
+gh pr checks {pr} --repo {owner}/{repo} --watch
+```
+
+Then fetch the three sources from Step 1, keeping only items newer than the
+pushed head commit. Run this as one command: a shell variable does not
+survive across tool calls.
+
+```sh
+SINCE=$(gh pr view {pr} --repo {owner}/{repo} --json commits --jq '.commits[-1].committedDate')
+gh api --paginate repos/{owner}/{repo}/pulls/{pr}/comments \
+  --jq ".[] | select(.created_at > \"$SINCE\") | {id: .id, author: .user.login, path: .path, line: .line, body: .body}"
+gh pr view {pr} --repo {owner}/{repo} --json reviews \
+  --jq ".reviews[] | select(.submittedAt > \"$SINCE\") | \"== \(.author.login) [\(.state)]\n\(.body)\n\""
+gh pr view {pr} --repo {owner}/{repo} --json comments \
+  --jq ".comments[] | select(.createdAt > \"$SINCE\") | \"== \(.author.login) \(.createdAt)\n\(.body)\n\""
+```
+
+Your own replies from Step 6 pass this filter too; skip them. A failed check
+is a finding too: read its log and add it to the checklist.
+
+Then:
+
+- No new findings and green checks: report that to the human and stop.
+- New findings: build a fresh checklist and run Steps 3-7 on it. Valid ones
+  get a fix and a commit; invalid ones get a reply with the reason and stay
+  open. Push once, after the whole round is committed, then watch again.
+- A round with no valid finding ends the loop. Do not push; there is nothing
+  new for Pullfrog to review.
+
+Stop after three rounds even if findings keep coming, and hand the open ones
+to the human. A reviewer that keeps producing findings is either right about
+something structural or looping on style, and both need a human call.
+
+---
+
 ## Process Flow
 
 ```
@@ -256,27 +306,25 @@ Build one checklist (threads + numbered findings)
         │
         ▼
 For each item:
-  ├── Valid? ──► Apply code fix
-  │                  │
-  │                  ▼
-  │             git add + git commit (commitlint msg)
-  │                  │
-  │                  ▼
-  │             Reply to inline comment with harness/model attribution
-  │             (required before resolving)
-  │                  │
-  │                  ▼
-  │             Resolve thread via GraphQL mutation
-  │
+  ├── Valid? ──► Apply code fix ──► git add + git commit (commitlint msg)
   ├── Skip? ──► Leave thread open, note reason
-  │
   └── Ambiguous? ──► Ask human before proceeding
         │
         ▼
-git push origin <branch>
+git push origin <branch>   (once, after the whole checklist)
+        │
+        ▼
+Reply to each addressed thread with harness/model attribution
+(required before resolving)
+        │
+        ▼
+Resolve each addressed thread via GraphQL mutation
         │
         ▼
 One PR comment per threadless source (review body, PR comment)
+        │
+        ▼
+Asked to babysit? ──► gh pr checks --watch ──► new findings? ──► back to the checklist
 ```
 
 ---
@@ -317,7 +365,7 @@ gh api graphql -f query='
 # 4. Apply fix, then commit (one per comment)
 git add <file> && git commit -m "<type>(<scope>): <description>"
 
-# 5. Push
+# 5. Push once, after every item is committed or deferred
 git push origin <branch-name>
 
 # 6. Reply before resolving (repeat per addressed comment)
@@ -334,6 +382,9 @@ mutation {
 
 # 8. Close threadless findings (once per review body or PR comment)
 gh pr comment {pr} --repo {owner}/{repo} --body $'<multi-fact reply>'
+
+# 9. Babysit (only when asked): wait for checks, then re-fetch findings newer than the head commit
+gh pr checks {pr} --repo {owner}/{repo} --watch
 ```
 
 ---
@@ -342,6 +393,8 @@ gh pr comment {pr} --repo {owner}/{repo} --body $'<multi-fact reply>'
 
 - **Threads are not the review** — a review body or PR comment can hold more findings than every inline thread combined; the checklist covers all three sources
 - **One fix, one commit** — never batch multiple fixes into a single commit
+- **Push once** — every push starts a Pullfrog review run that spends AI credits; push after the whole checklist is committed or deferred, never per fix
+- **Babysit only when asked** — watch checks and re-fetch findings after a push only when the human asks; stop after three rounds or after a round with no valid finding
 - **Commitlint format always** — `type[(scope)]: description`, lowercase
 - **Reply before resolve** — every addressed thread gets a GitHub reply before resolution
 - **Identify the writer** — the reply must include the harness + model string, such as `Codex` or `Claude Code`
