@@ -1,0 +1,12 @@
+# YAML rather than JSONC: the markdownlint-lsp server behind Zed's markdownlint
+# extension parses config files with a YAML parser, which folds `//` comments
+# into the keys and silently drops every rule.
+
+# Leave markdown table pipes exactly as written.
+MD060: false
+
+# Prettier wraps prose; it cannot wrap code blocks, tables, or headings.
+MD013:
+  code_blocks: false
+  tables: false
+  headings: false
