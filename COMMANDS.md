@@ -29,7 +29,19 @@ looks larger than what `docker system df` reports.
 
 ## Large work
 
-Work step by step. Verify each step before starting the next. Record learnings,
-trade-offs, and decisions as Agent Notes under `.agents/notes/`. Commit as you
-go, one logical chunk of work per commit. When everything is done and verified,
-push to the remote.
+Take your time. Do it step by step. Use `.agents/notes` to keep track of
+learnings and making changes - if this is useful (less is more). Commit as you
+go – put chunks of work logically together. When everything is done and
+verified, push to the remote. If we have a PR, use
+~/.agents/skills/github-pr-review/SKILL.md to baby sit and wait for coding
+agents to give review the PR.
+
+## Bug fix
+
+Write a bug fix plan, start a branch, new worktreee, make the fix, add an e2e
+test and mocking if need. Do not make real AI API calls that would costs us
+money to run or other API calls that are very slow and mocking makes sense.
+
+Take your time. Do it step by step. Use `.agents/notes` to keep track of
+learnings and making changes - if this is useful (less is more). Commit as you
+go – put chunks of work logically together.
