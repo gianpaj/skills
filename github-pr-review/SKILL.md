@@ -145,12 +145,6 @@ git commit -m "refactor(blog): extract DEFAULT_PROMO_KEY constant" \
   -m "Three call sites repeated the string. One constant keeps them in sync."
 ```
 
-### Commit command
-
-```sh
-git add <file> && git commit -m "<type>(<scope>): <description>"
-```
-
 ---
 
 ## Step 4 — Verify Before Pushing
