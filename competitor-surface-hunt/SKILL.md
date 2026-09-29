@@ -14,9 +14,11 @@ description: >
 Map a competitor's **public product surface**: marketing site vs staff app vs
 guest app vs sales calendar. The marketing domain is usually not the product.
 
-Do this from public sources only. GET/HEAD. Read login pages, JS, certs, DNS,
-legal. Do not guess passwords, do not fuzz authenticated APIs, do not write
-exploits.
+Do this from public sources only. Use GET/HEAD for direct HTTP probes. Read
+login pages, JS, certs, DNS, and legal pages. Browser checks may trigger normal
+page and widget initialization requests. Do not submit registrations, contact
+forms, chat messages, or bookings without user authorization. Do not guess
+passwords, fuzz authenticated APIs, or write exploits.
 
 Default output: `plans/YYYY-MM-DD-<slug>-competitor-analysis.md` in the current
 repo.
@@ -49,11 +51,38 @@ Fetch and extract, do not skim titles only:
   YouTube, GitHub, LinkedIn, X
 - App Store / Play search for the product name
 
-"Book a demo" that lands on Cal.com (or equivalent) is a **sales call**, not a
-dashboard. Record it as the advertised path, then keep hunting.
+Follow pricing, demo, trial, and signup links to their actual destination.
+"Subscribe Now" can lead to a sales form; "Book a demo" can lead to a calendar.
+Record whether the destination is a sales request, self-service registration,
+login, guided tour, or usable product demo. Then keep hunting.
 
 Legal/DPA is product intel: subprocessors (AWS region, Stripe, auth, analytics,
 LLM vendor), "accessed via web browser", mobile apps, go-live dates.
+
+#### Browser verification
+
+Use the `agent-browser` skill when content depends on JavaScript, cookie
+consent, or interaction, or when HTTP extraction returns an empty app shell.
+Read its current CLI guide, use an isolated named session, and close that
+session when finished.
+
+- Render pricing pages and check billing toggles, allowances, setup fees, and
+  the destination of purchase buttons. Check login pages for registration links.
+- Open embedded chat or booking widgets. If consent controls their visibility,
+  record the consent state used. Inspect iframe URLs and network requests
+  during opening, including configuration responses that identify the provider.
+- Distinguish a script present on the page, a successfully loaded widget, and
+  a working conversation. Record the strongest level actually verified.
+  A form requiring visitor details is a stopping point unless submission is
+  authorized.
+- Attribute each component separately. A booking engine and chatbot on the same
+  site can have different providers. Hidden branding, URL paths, and token
+  prefixes alone do not establish ownership or backend integrations.
+- Record source URLs and concise evidence. Redact cookies, session tokens, and
+  personal data from reports; do not publish raw network captures.
+
+Keep DNS, certificate queries, headers, sitemaps, and bundle searches in
+shell/HTTP tools. Use the browser to resolve what those checks cannot show.
 
 ### 3. Certificate transparency (do not skip)
 
@@ -134,6 +163,9 @@ Classify each URL as one of:
 | Media           | S3/CloudFront 403                                                |
 | Empty / down    | NXDOMAIN, 503, platform 404                                      |
 | Unrelated       | Other language, other product, parked page                       |
+
+Apply the browser verification checks in step 2 before classifying an app shell
+or claiming that self-service access or a working demo exists.
 
 A 200 HTML shell plus an RSC/JSON 404 is a **multi-tenant app with no seeded
 tenant**, not a working demo hotel.
