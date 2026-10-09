@@ -107,3 +107,58 @@ deletes state exports. It retains a synthetic-only JSON summary in the printed
 temporary directory. The assertions intentionally flag changed CLI behavior so
 the documented choice can be reassessed after an upgrade. This tests explicit
 CDP attachment, not auto-discovery of personal Chrome.
+
+## Fonio assessment review
+
+Reviewed the October 9, 2026 public, payment-gated and accessible-dashboard
+runs, including the active-dashboard assessment, coverage ledger and 100 PNG
+captures. These are observations from that account and execution environment.
+They do not establish a CLI defect, a staging payment environment or runtime
+integration support.
+
+<!-- prettier-ignore -->
+| Observation | Consequence for the workflow |
+| --- | --- |
+| A supplied account remained payment-gated; a different working account exposed the editor | Keep account/entitlement evidence separate from host names and product-change claims |
+| Some click/Escape commands reported success without the expected tab, radio, dialog or menu change | Verify one interaction and its postcondition before repeating it; the root cause was not established |
+| A connection action opened a blank tab with a smaller viewport | Check the selected tab, actual URL and viewport before the next capture batch |
+| Tall captures still clipped a nested settings panel | Verify the lowest control and scroll the actual panel; image height is not coverage |
+| Overlapping dialogs and hidden menu content confused broad DOM/text reads | Identify the active visible dialog/menu and compare with the rendered image |
+| A restored capture and baseline file were byte-identical | Preserve baseline evidence under its original identity; label restoration separately |
+| Onboarding survey answers persisted while assistant forms remained unsaved | Report survey writes separately from draft/configuration restoration |
+| Connector setup entries and Notify me cards disagreed across views | Record availability per surface; do not count catalogue entries as working integrations |
+| UI voice/locale choices differed in scope from marketing counts; the engine/model was unconfirmed | Separate visible choices, published claims and technical unknowns |
+
+A managed-terminal setup required adjusted Chrome runtime settings. Ending its
+owning shell also ended the browser. This supports checking process lifetime and
+reusing approved settings in that environment, not requiring those settings for
+every teardown.
+
+The assessment distinguished draft transfer/email/SMS configuration from actual
+execution, and Test Context inputs from a staging environment. Web Search copy
+limited the feature to fixed URLs. Existing generated answers described
+different businesses, but their ingestion cause was not witnessed. These cases
+support reading explanatory copy and reporting evidence strength, rather than
+inferring capability from a feature name.
+
+## Local evidence checks
+
+The file checker is deliberately independent of browser access:
+
+```bash
+python3 scripts/test-check-evidence.py
+python3 scripts/check-evidence.py /path/to/current-visit --expected-width 1440
+```
+
+Six synthetic tests exercise valid Markdown/HTML references, external and code
+example exclusions, unchanged files, missing targets with query redaction,
+corrupt/truncated PNGs, duplicate/width warnings and invalid arguments. They use
+no network or accounts.
+
+Against the active-dashboard artifacts, the checker inspected 191 local links
+and 100 PNGs with no errors. A 1440-only width expectation flagged two
+intentional 390 × 844 mobile captures; allowing both widths removed those
+warnings. It also identified byte-identical transfer-entry/restored files. This
+confirms the helper can flag structural review items, not that images are
+readable, baseline labels are correct or the assessment is complete. No speed
+comparison was measured.

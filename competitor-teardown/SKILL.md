@@ -1,181 +1,146 @@
 ---
 name: competitor-teardown
 description:
-  Tear down a public or logged-in competitor website or app. Explore product
-  features, workflows, settings, and conditional UI, capture screenshots, and
-  write an evidence-backed assessment. Supports first-time research and optional
-  comparisons with earlier visits; no prior teardown is required. Not for
-  finding hidden hosts or auditing source code.
+  Tear down a public or logged-in competitor website or app. Explore workflows,
+  settings and meaningful UI branches, capture evidence, and write a product
+  assessment with access limits and optional comparisons with earlier visits.
+  Not for hunting hidden hosts or auditing source code.
 ---
 
 # Competitor teardown
 
-Produce a dated product assessment with screenshots that show both the ordinary
-pages and the meaningful options hidden behind controls. Separate what the
-product exposes from what was exercised successfully.
+Explain what the product lets a user accomplish, how its configuration works,
+and where access or testing stops. Separate visible controls, published claims
+and successfully exercised behavior.
 
-## Establish the scope
+## Establish scope and completion
 
-Start from the supplied website, app URL, or accessible browser session. A prior
-teardown and a logged-in account are optional. Confirm the requested product,
-environment, available access, and output directory from context; identify the
-organization only when the app has one. Honor an explicit request to stop if a
-particular session is unavailable.
+Start from the supplied URL or accessible session. Identify the requested
+product, account/workspace, access level, comparison target and output location
+from context. A prior report or authenticated account is optional. Preserve
+resource-identifying URL parameters until observed navigation establishes an
+alternative. A hostname containing dev, staging or k8s does not prove a sandbox.
+When signed out, cover public pages and demos without making registration a
+prerequisite.
 
-For a first visit, document the product's features, main workflows, navigation,
-settings, integrations, and visible plan or access limits. Use public pages and
-interactive demos when signed out. Distinguish marketing claims from behavior
-observed in the product, and record login-gated areas as uninspected rather than
-missing features. Do not require account creation just to begin public research.
+Use the supplied date/path when explicit. Otherwise use the local date under the
+project's existing competitive-research directory, or
+`competitive-research/YYYY-MM-DD-<product>/`. Keep distinct visits or account
+states in separate subdirectories. Read relevant earlier evidence before making
+change claims; omitted features are newly observed, not necessarily newly
+shipped.
 
-Use the supplied date/path when explicit. Otherwise create
-`YYYY-MM-DD-<product>` in the project's existing competitive-research directory,
-or `competitive-research/` under the current workspace if no convention exists.
-Use the local date.
-
-If earlier research is available, read it and the relevant screenshots before
-making change claims. Add a comparison without making it a prerequisite for the
-teardown. Preserve historical evidence. A feature omitted from an earlier report
-is newly observed, not necessarily newly shipped. Production onboarding and a
-staging subscription page are different baselines.
+A full teardown covers distinct accessible sections, meaningful conditional
+states and the main user journeys. Record a precise reason for each uninspected
+branch. Do not add subdomain hunting, repeated registration, promo-code trials,
+source auditing or backend reverse engineering unless requested. Relevant
+official documentation can fill evidence gaps, with its source level stated.
 
 ## Choose browser access with a small test
 
-Use agent-browser for all website navigation, interaction, and screenshot
-capture. Read its version-matched core guide and only the relevant command
-references. Do not automatically fall back to Computer Use, desktop automation,
-or other manual browsing tools, including for browser setup and permission
-prompts.
+Use agent-browser for all website navigation, interaction and screenshot
+capture. Read its installed, version-matched guide and relevant references. Do
+not automatically switch to Computer Use or another browser tool for setup,
+permissions or browsing.
 
-If the target website and current local setup cannot use agent-browser, stop the
-browser walkthrough. State the specific blocker and the checks already made,
-explain the proposed setup change or alternative, and require explicit human
-confirmation before proceeding. A general teardown request is not approval to
-switch tools. If setup needs a browser UI action, ask the user to perform it; do
-not operate that UI yourself unless the user explicitly approves that exception.
+If the current setup cannot run agent-browser against the target, stop the
+walkthrough. Report the concrete failure, checks made and proposed setup change
+or alternative, and require explicit human confirmation. Honor approval already
+given in the conversation; do not ask again for the same authorized workaround.
+If a required browser UI action is unavailable through agent-browser, ask the
+user to perform it unless they explicitly authorize that exception.
 
-For a public site, start a fresh headless agent-browser session and inspect the
-accessible pages directly. No auth export is needed.
+Start a dedicated named session for public access or an authorized login. For
+auth reuse, read [Browser access](references/browser-access.md). Prefer built-in
+state export from a dedicated source browser; personal Chrome requires pinned
+access or the origin-scoped helper. Verify loaded content in the intended
+workspace, not just a non-login URL. Never include credentials or auth exports
+in research artifacts.
 
-For an authenticated session, prefer a temporary headless browser when
-authorized auth reuse passes a smoke test. Use built-in `state save` and
-`--state` for a dedicated source browser. For personal Chrome with unrelated
-logins, use pinned agent-browser access or the scoped helper: the controlled
-test confirmed that built-in export includes unrelated cookies. See
-[Browser access](references/browser-access.md) for the tested choices. Verify
-the expected tenant and loaded authenticated content, not merely a non-login
-URL.
+A fresh browser isolates browsing state, not server-side data. Use a stable
+session, launch options and selected tab throughout the run. Apply the bounded
+setup checks in the browser-access reference instead of repeatedly trying
+unrelated launch combinations or reverse-engineering authentication.
 
-This isolates tabs, extensions, viewport, and browser storage. **It does not
-isolate server-side data.** A setting changed headlessly still changes the real
-account.
+## Map, explore and close branches
 
-If import fails, try an accessible existing session through agent-browser with a
-pinned tab, or an authorized login in a dedicated agent-browser session. These
-remain agent-browser workflows. If neither works with the current setup, apply
-the stop-and-confirm rule above. Do not spend the teardown reverse-engineering
-authentication. Avoid relaunching personal Chrome or copying its live profile.
+Read [Assessment workflow](references/assessment-workflow.md) when planning
+coverage and writing the report. Start a compact ledger before exploring:
 
-## Map once, then explore by section
+| Route/view | Loaded state | Branch/status | Evidence | Side effect/restoration/limit |
+| ---------- | ------------ | ------------- | -------- | ----------------------------- |
 
-Capture the loaded navigation and make a short coverage ledger as you work:
+Use statuses such as queued, inspected, blocked and intentionally skipped.
+Resolve each mapped section once; shared controls need one representative
+capture unless their behavior differs. Record redirects and the actual final
+URL. A blocked section does not need repeated route guesses. Revisit it when new
+access or evidence changes the blocker.
 
-| Route/view | Loaded state | Conditional states | Evidence | Restoration/limit |
-| ---------- | ------------ | ------------------ | -------- | ----------------- |
+Trace the main journey from setup to test/activation, operational review and
+maintenance as access permits. In each section inspect tabs, advanced settings,
+menus, dependent fields, add/edit forms, lower scroll regions and limits.
+Capture branches that change behavior or available fields. A voice/language menu
+can establish choices without selecting every item. Do not treat loading,
+master-off, unconnected or empty-history states as missing features.
 
-Map the main product capabilities and user workflows, then visit each distinct
-accessible section and its tabs. Include public product pages or demos when that
-is the available access. Within a section, inspect the controls that change what
-a user can see or do:
+Before batching, prove one representative navigation and interaction, including
+its expected visible result. A CLI success message is not evidence that a tab,
+radio, menu or dialog changed. Use the verified interaction and capture patterns
+in [Capture workflow](references/capture-workflow.md). Stop a failed batch at
+the first unmet condition; diagnose that step before producing more artifacts.
 
-- Master switches, dependent switches, advanced sections, accordions.
-- Dropdown choices that expose different fields or behaviors.
-- Add/edit forms, empty states, filters, detail drawers, and overflow menus.
-- Lower scroll regions, previews, integration setup entry points, and plan
-  comparisons.
+## Preserve account state
 
-Capture meaningful branches, not every combination of independent choices. One
-menu capture can document twenty voice choices; selecting every voice adds
-little unless its behavior changes. Stop a branch at the boundary of the
-authorized exploration, or when progressing requires unavailable data or a
-consequential submission. Record the boundary precisely.
+Record loaded values and save behavior before changing a setting. Master
+switches can persist immediately or initialize resources even when neighboring
+fields use Save. Opening a form may expose existing configuration or a new
+draft; identify which. Do not enable a feature merely to reveal fields if its
+side effects are unknown.
 
-Do not infer absent features from a master-off state, a loading skeleton, or a
-disabled control before data arrives. A catalogue entry proves availability in
-the UI, not that the integration works.
+Capture baseline, inspect a meaningful branch, cancel/discard, then reload or
+reopen and verify within that section. Check both the field values and whether
+an action/resource was created. A regenerated blank draft is not proof that a
+saved configuration was rolled back. No Save click is not proof of no writes.
 
-## Explore settings without losing the original state
+Mandatory onboarding is also a write. Use supplied facts and authorization; ask
+for required missing answers instead of inventing a company profile to unlock
+the dashboard. Record survey submissions, imports and generated resources
+separately from assistant settings. Disclose changes with no UI undo; do not use
+undocumented APIs to conceal them.
 
-Before an authorized toggle, record its loaded value, dependent values, and
-visible save/reset behavior. Keep this next to its screenshot reference. A
-master toggle can persist immediately while adjacent fields use Save.
+Do not submit purchases, calls, messages, invitations, connections or
+destructive actions merely to inspect the next screen. Continue an explicitly
+authorized disposable workflow only within its stated scope, recording creation
+and cleanup. An ambiguous payment environment is not a confirmed sandbox.
 
-For each group: capture baseline, reveal its meaningful states, then
-reset/discard and verify the loaded state after reload or revisit. Capture the
-verified final state when restoration matters. Do not leave restoration until
-the end of a large walkthrough.
+## Capture and deliver
 
-Enabling a feature can initialize keys, associations, schedules, or other
-configuration. Switching it off may not reverse that initialization. Check
-dependencies before enabling; do not invent a placeholder association just to
-expose a screen. If an authorized action leaves a value with no UI undo, report
-it explicitly and avoid undocumented API workarounds.
+Capture a representative baseline and the states needed to substantiate
+findings. Check the first screenshots before scaling up. Record the actual URL,
+account context, viewport and saved/draft state alongside evidence. Nested
+scrolling, popup tabs and animation can spoil otherwise successful captures;
+diagnose them using the capture reference. Do not unhide elements or rewrite CSS
+to create an accessible screen.
 
-A fresh browser is not a rollback mechanism. No Save click is not proof that
-nothing persisted. Avoid submitting messages, invitations, purchases,
-connections, registrations, or destructive actions merely to inspect the next
-screen. If a disposable workflow is explicitly authorized, record what was
-created and how it was cleaned up.
+Write the assessment while resolving the ledger, rather than reconstructing it
+from screenshots at the end. Lead with the product's value, operating model and
+material limits. Cover workflows, settings, integrations, packaging, observed
+friction, comparison implications and specific unknowns. Keep UI claims,
+documentation, runtime tests and interpretation distinct. Account values are not
+product defaults, catalogue entries are not working integrations, and a custom
+voice name is not a TTS provider/model ID.
 
-## Capture efficiently and verify visually
+Deliver a dated assessment, original screenshots with useful captions, and the
+coverage/restoration ledger. A screenshot index can live in the ledger; use a
+separate gallery only when it helps review. Preserve historical captures and add
+follow-up links when correcting an earlier access conclusion.
 
-Use [Capture workflow](references/capture-workflow.md) for command patterns and
-scroll diagnostics.
+Run the local checks described in Capture workflow, review contact sheets and
+inspect dense or suspicious images individually. Verify final account state.
+Close only the research browser owned by this task, remove its temporary auth
+files and restore debugging if this task enabled it. Report outputs, persistent
+changes and consequential untested behavior plainly.
 
-Batch a known navigation, its semantic ready condition, and screenshot in one
-invocation. Keep adaptive choices sequential. Use compact snapshots for controls
-and scoped/full text only when needed for labels and explanatory copy. Reacquire
-refs after navigation or modal transitions; do not carry stale refs across
-pages.
-
-Wait for loaded values or unique content, not a nav label shared by every page.
-Allow drawer animation to settle. Fixed long sleeps waste time and still fail on
-slower pages.
-
-Test `screenshot --full` once on a long page and inspect the image. Nested
-scroll panels can remain clipped even in headless Chrome. Use a taller viewport
-or overlapping captures of the actual scroll container. Preserve real UI layout;
-do not unhide elements or rewrite page CSS to manufacture evidence.
-
-Name captures by section and state, such as `ai-agent-off`, `ai-agent-advanced`,
-and `routing-restored`. Give each image a short caption identifying saved,
-draft, or final state. Review contact sheets and inspect dense or suspicious
-images at full resolution. Replace loading, clipped, or unfinished-animation
-captures. Do not equate file count with coverage.
-
-## Deliver the teardown
-
-Adapt the package to the request. Useful outputs for either a first visit or a
-repeat teardown are:
-
-- A dated product assessment with linked evidence, a feature and workflow
-  inventory, settings and conditional behavior, product implications, and access
-  or testing limits. When earlier evidence exists, add confirmed changes and
-  newly observed details as a comparison.
-- Original screenshots, an index or local gallery, and the coverage/restoration
-  ledger.
-
-Keep facts, UI claims, and interpretation distinct. Account values are not
-product defaults; staging prices are not verified public pricing. Correct an
-earlier conclusion when deeper inspection contradicts it. Make product
-recommendations traceable to observed friction or capabilities.
-
-Check image readability, relative links, missing files, and the final account
-state. Keep auth exports out of the report and repository. Close only the
-browser session created for this work, remove temporary auth files, and restore
-debugging if it was enabled for the task. Report saved outputs and any
-persistent changes or uninspected branches plainly.
-
-For evidence behind the headless workflow, see
-[Tested workflow](references/tested-workflow.md). Its timings and product
-observations are a local test, not universal performance guarantees.
+[Tested workflow](references/tested-workflow.md) records the experiments behind
+these choices. Its observations are local evidence, not universal app or CLI
+behavior.
