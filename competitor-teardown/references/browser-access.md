@@ -5,6 +5,28 @@ Use agent-browser for browsing and screenshots. The
 also apply to setup and cleanup. Read the installed CLI's authentication
 guidance before choosing an export method.
 
+## Bound setup recovery
+
+Check the installed version/help, then use one small navigation test with a
+fresh named session. Distinguish a browser-launch failure from a working browser
+showing sign-in, a payment gate or an expired session. The latter are
+account/access conditions; changing Chrome flags does not resolve them.
+
+For a concrete setup failure, inspect the relevant diagnostic and make one
+supported retry within the user's existing authorization. Executable
+availability, write permissions, sockets, sandbox errors and CDP connectivity
+need different checks. If the same failure repeats without new evidence, use the
+main skill's stop/confirmation rule instead of cycling through launch
+combinations. State the proposed change and why it follows from the error. Reuse
+an already approved workaround when its conditions still apply.
+
+Keep launch flags, writable runtime paths and session identity consistent.
+Changing launch settings requires a fresh session; an existing daemon may ignore
+them. If the execution environment kills child processes with their parent
+shell, keep the owning process alive and verify the next command reaches the
+same browser before logging in. This behavior was observed in one managed
+terminal, not established for all agent-browser environments.
+
 ## Choose the export scope
 
 Prefer built-in `state save` and `--state` for a browser dedicated to the target
