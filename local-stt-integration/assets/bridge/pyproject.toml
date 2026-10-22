@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openclaw-stt"
+version = "0.1.0"
+description = "Thin local speech-to-text bridge for OpenClaw and reproducible engine comparisons"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+whistle = ["cactus-needle==3.2.1"]
+whisper = ["faster-whisper>=1.2,<2", "av>=11,<19"]
+test = ["pytest>=8,<10"]
+
+[project.scripts]
+stt-bridge = "openclaw_stt.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

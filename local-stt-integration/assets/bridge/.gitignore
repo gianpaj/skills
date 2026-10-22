@@ -1,0 +1,11 @@
+.venv/
+.runtime/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+config.local.toml
+corpus/*
+!corpus/.gitkeep
+reports/*
+!reports/.gitkeep
+.ruff_cache/

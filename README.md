@@ -1,3 +1,8 @@
+## Skills
+
+- [Local speech-to-text](local-stt-integration/SKILL.md): install a local
+  Needle/Whistle adapter, connect incoming voice notes, and compare ASR engines.
+
 ## Setup Global AGENTS.md
 
 ```sh

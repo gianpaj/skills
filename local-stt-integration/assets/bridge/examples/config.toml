@@ -1,0 +1,27 @@
+default_backend = "whistle"
+max_duration_seconds = 600
+ffmpeg = "ffmpeg"
+
+# Paths are relative to this config file, not the caller's working directory.
+# Copy this file to the project root as config.local.toml before use.
+[backends.whistle]
+type = "needle"
+executable = ".runtime/linux-x86_64/needle"
+model = ".runtime/whistle.cact"
+engine_version = "3.3.3"
+threads = 4
+
+# Install the whisper extra and download a CTranslate2 model before enabling.
+# [backends.whisper-turbo]
+# type = "faster-whisper"
+# model = ".runtime/faster-whisper-large-v3-turbo"
+# device = "cuda"
+# compute_type = "float16"
+# beam_size = 5
+
+# Any local runtime with JSON stdout {"text": "...", "language": "en", "words": []}.
+# No shell is used; each array item is exactly one argument, including spaces.
+# [backends.another]
+# type = "command"
+# argv = ["/absolute/path/to/engine", "--audio", "{audio}"]
+# Optional placeholders: {language}, {keywords_file}, {model}.
