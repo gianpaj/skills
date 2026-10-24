@@ -160,3 +160,19 @@ or `rg -c`, then read only the matching region.
 
 When printing matches, pass `-M200 --max-columns-preview` so a minified or
 generated file cannot dump one huge line into context.
+
+## Agent tooling
+
+I use Codex and Claude Code. Install skills and shared agent files for both.
+
+- Install a global skill once in `~/.agents/skills/<name>`, which Codex reads.
+  Symlink it into `~/.claude/skills/<name>` for Claude Code.
+- With the `skills` CLI, name both agents and let it symlink:
+  `npx skills add <owner/repo> --skill <name> -g -a claude-code -a codex -y`
+- Do not pass `--copy`. Copies drift apart when one agent's copy is updated.
+- For a project skill, run the same command without `-g`. Commit
+  `skills-lock.json` with the skill.
+- Keep shared instructions in `AGENTS.md`. Claude Code reads a project's
+  `AGENTS.md` directly, so do not add a project `CLAUDE.md`. For global
+  instructions, `~/.claude/CLAUDE.md` imports `~/.codex/AGENTS.md`.
+- After installing, confirm that both agent paths resolve to the same files.
