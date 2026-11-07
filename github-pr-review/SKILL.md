@@ -1,8 +1,8 @@
 ---
 name: github-pr-review
 description:
-  "Use this skill when asked to address, fix, resolve, babysit, or watch GitHub
-  PR review comments and review-bot findings."
+  "Use when opening a GitHub PR, taking over an existing PR, addressing review
+  comments or review-bot findings, or babysitting PR reviews."
 ---
 
 # GitHub PR Review Comment Resolution
@@ -16,7 +16,18 @@ comes back clean.
 Important: if a thread has been addressed, you must leave a reply on GitHub in
 that thread before resolving it. Do not resolve addressed threads silently.
 
-## Prerequisites
+## Start here
+
+When opening a PR, follow the project's `AGENTS.md` rules for its title,
+description, and review readiness. Create the PR before continuing.
+
+When taking over an existing PR, start at Step 1 after checking the review
+prerequisites below.
+
+Ask whether the user wants babysitting unless they have already specified.
+Suggest watching checks and repeat review rounds.
+
+## Review prerequisites
 
 - `gh` CLI authenticated (`gh auth status`)
 - On the feature branch (`git branch --show-current`)
