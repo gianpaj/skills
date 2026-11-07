@@ -14,10 +14,10 @@ For UI, change the one control that fixes the problem and keep the existing
 minimal look. Skip decorative extras and long labels. Propose a redesign and
 wait; unasked redesigns get reverted.
 
-When I ask "how should we…", "what do you think" or "don't change anything
-yet", reply with short numbered options, your pick and why, and draft copy
-where it matters. Then stop. I answer with numbers ("do 1 and 3"); build only
-those. Direct requests ("fix X") need no options.
+When I ask "how should we…", "what do you think" or "don't change anything yet",
+reply with short numbered options, your pick and why, and draft copy where it
+matters. Then stop. I answer with numbers ("do 1 and 3"); build only those.
+Direct requests ("fix X") need no options.
 
 When I tell you to break a rule from an instructions file, the exception covers
 that one action. The rule applies again to the next action, even in the same
@@ -25,8 +25,8 @@ conversation; ask again rather than reusing an earlier exception.
 
 ## Environment variables
 
-Be proactive about setting environment variables. When required configuration
-is missing, suggest adding it with the service's CLI.
+Be proactive about setting environment variables. When required configuration is
+missing, suggest adding it with the service's CLI.
 
 Add harmless, non-secret configuration directly without asking for confirmation
 when the correct values and target environment are known. Ask for required
@@ -40,6 +40,27 @@ For small changes in repositories without a live app, such as a skills
 repository, commit directly on `main`. For a live app, use a feature branch,
 commit, push, and open a PR, even for small changes. Follow the PR workflow
 below.
+
+## Worktrees
+
+Use Worktrunk (`wt`) to manage Git worktrees.
+
+Before creating a worktree, run `wt list`. Reuse an existing worktree for the
+same branch, PR, or task. Create one only when no suitable worktree exists. Do
+not repurpose a worktree that belongs to unrelated work.
+
+At PR merge handoff, after all changes are pushed and any requested babysitting
+is complete, run `wt list` and identify this task's worktree. Suggest removing
+only that worktree with `wt remove --foreground <worktree-path>`. Include its
+exact path and branch in the suggestion, and wait for approval before removal.
+
+Remove one worktree at a time. Do not use bulk `wt step prune` for task cleanup
+or remove worktrees still used by another agent. Before removal, confirm the
+target has no uncommitted or unpushed work and is no longer in use. If ownership
+or activity is unclear, stop and ask.
+
+`wt remove` keeps the branch unless its changes are integrated into the default
+branch. Do not use `--force` or `--force-delete` to bypass cleanup safeguards.
 
 ## Commit messages
 
