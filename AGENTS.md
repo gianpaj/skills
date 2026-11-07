@@ -10,6 +10,37 @@ Channel both "measure twice, cut once" and YAGNI. Fight scope creep. Try to
 honor my intent – the smallest change that actually solves the problem, not a
 toy version.
 
+For UI, change the one control that fixes the problem and keep the existing
+minimal look. Skip decorative extras and long labels. Propose a redesign and
+wait; unasked redesigns get reverted.
+
+When I ask "how should we…", "what do you think" or "don't change anything
+yet", reply with short numbered options, your pick and why, and draft copy
+where it matters. Then stop. I answer with numbers ("do 1 and 3"); build only
+those. Direct requests ("fix X") need no options.
+
+When I tell you to break a rule from an instructions file, the exception covers
+that one action. The rule applies again to the next action, even in the same
+conversation; ask again rather than reusing an earlier exception.
+
+## Environment variables
+
+Be proactive about setting environment variables. When required configuration
+is missing, suggest adding it with the service's CLI.
+
+Add harmless, non-secret configuration directly without asking for confirmation
+when the correct values and target environment are known. Ask for required
+values that are missing.
+
+## Shipping
+
+"LGTM. Ship it." means commit the approved changes.
+
+For small changes in repositories without a live app, such as a skills
+repository, commit directly on `main`. For a live app, use a feature branch,
+commit, push, and open a PR, even for small changes. Follow the PR workflow
+below.
+
 ## Commit messages
 
 Whenever creating a Git commit or proposing a commit message, follow this Git
@@ -41,6 +72,16 @@ implementation inventory.
 
 Open a PR only when it is ready for review. Do not open a draft, because
 automated review agents need a ready PR.
+
+When opening a PR or taking over an existing PR, follow the
+[github-pr-review](github-pr-review/SKILL.md) skill unless the user specifies
+otherwise.
+
+Ask whether the user wants you to babysit the PR unless they have already
+specified. Babysit only when requested.
+
+The goal is to merge good, working code that benefits the product's users or
+customers.
 
 ## Plans and specs
 
