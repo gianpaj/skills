@@ -49,10 +49,28 @@ Before creating a worktree, run `wt list`. Reuse an existing worktree for the
 same branch, PR, or task. Create one only when no suitable worktree exists. Do
 not repurpose a worktree that belongs to unrelated work.
 
-At PR merge handoff, after all changes are pushed and any requested babysitting
-is complete, run `wt list` and identify this task's worktree. Suggest removing
-only that worktree with `wt remove --foreground <worktree-path>`. Include its
-exact path and branch in the suggestion, and wait for approval before removal.
+At PR merge handoff, suggest worktree removal only after all changes are pushed,
+the review gate below is satisfied, and any requested babysitting is complete.
+Run `wt list` and identify this task's worktree. Suggest removing only that
+worktree with `wt remove --foreground <worktree-path>`. Include its exact path
+and branch in the suggestion, and wait for approval before removal.
+
+Before suggesting removal, check `.github/workflows/claude.yml` and
+`.github/workflows/pullfrog.yml` and verify the required reviews on GitHub:
+
+- If `claude.yml` exists, Claude must have completed its initial code review of
+  the PR. Do not request another Claude review after that initial review
+  completes; later pushes do not require it to run again.
+- If `pullfrog.yml` exists, Pullfrog must have completed its code review for the
+  latest pushed commit. Recheck after each push.
+
+All findings from the required reviews must be addressed through the PR review
+workflow. This gate is waived only when neither workflow exists.
+
+A missing, pending, skipped, cancelled, or failed required review does not
+satisfy the gate, even if other CI checks are green. If the gate is unmet, keep
+the worktree and report what is missing. Without a babysitting request, do not
+start a watch loop.
 
 Remove one worktree at a time. Do not use bulk `wt step prune` for task cleanup
 or remove worktrees still used by another agent. Before removal, confirm the
