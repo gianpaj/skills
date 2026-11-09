@@ -80,6 +80,13 @@ or activity is unclear, stop and ask.
 `wt remove` keeps the branch unless its changes are integrated into the default
 branch. Do not use `--force` or `--force-delete` to bypass cleanup safeguards.
 
+## Scratch clones and caches
+
+Put throwaway clones, package stores, virtualenvs, and build caches under
+`~/.cache/agent-work/<task>/`, never under `/tmp`. `/tmp` is a RAM-backed
+tmpfs with a per-user quota; filling it fails every agent's writes with
+"Disk quota exceeded". Delete the task's folder when the task ends.
+
 ## Commit messages
 
 Whenever creating a Git commit or proposing a commit message, follow this Git
