@@ -83,9 +83,11 @@ branch. Do not use `--force` or `--force-delete` to bypass cleanup safeguards.
 ## Scratch clones and caches
 
 Put throwaway clones, package stores, virtualenvs, and build caches under
-`~/.cache/agent-work/<task>/`, never under `/tmp`. `/tmp` is a RAM-backed
-tmpfs with a per-user quota; filling it fails every agent's writes with
-"Disk quota exceeded". Delete the task's folder when the task ends.
+`~/.cache/agent-work/<task>/` when `/tmp` is a tmpfs
+(`mount | grep ' on /tmp type tmpfs'` prints a line). A tmpfs `/tmp` is
+RAM-backed with a per-user quota; filling it fails every agent's writes
+with "Disk quota exceeded". Otherwise use `$TMPDIR` or `/tmp`. Delete the
+task's folder when the task ends.
 
 ## Commit messages
 
