@@ -1,0 +1,15 @@
+---
+name: t3-code-threads
+description: T3 Code thread creation, messaging and verification via a running server; create threads visible to T3 clients.
+---
+
+# T3 Code threads
+
+1. Inspect the running server before acting: `systemctl --user status t3code.service --no-pager -l`, `ss -lntp`, and `curl -fsS http://127.0.0.1:3773/.well-known/t3/environment`. Use the actual local address and server version, because an installed `t3` launcher can differ from the service executable. Inspect `t3 auth session issue --help` for current flags.
+2. Issue a short-lived bearer session using the running version's `t3 auth session issue --scope orchestration:read --scope orchestration:operate --ttl 5m --label openclaw-thread --json`, keeping the token out of output, logs and URLs; save the returned session ID privately and revoke it in a `finally` block with `t3 auth session revoke <session-id>`. Request only the scopes needed.
+3. Read `GET /api/orchestration/shell` with `Authorization: Bearer <token>` and `x-t3-orchestration-protocol: 2`; choose the requested existing project by `workspaceRoot` and reuse an existing compatible `modelSelection`, or ask if the project is ambiguous. Inspect the environment descriptor and current server's protocol if it differs.
+4. Open the RPC connection: `POST /api/auth/websocket-ticket/rpc` with the bearer token, then connect to `ws://127.0.0.1:3773/ws?orchestrationProtocol=2&wsTicket=<ticket>` with the returned single-use ticket. Never print the ticket or connection URL. Use the server's current protocol version and endpoint paths.
+5. Send WebSocket JSON RPC requests as `{"_tag":"Request","id":"<unique>","tag":"orchestration.dispatchCommand","payload":<command>,"headers":[]}` and inspect the matching `Exit` for `Success`; include `headers: []` because the dispatcher validates request headers.
+6. Create a thread with a `thread.create` command containing unique UUIDs for `commandId` and `threadId`, the existing `projectId`, `title`, copied `modelSelection`, `runtimeMode: "auto"`, `interactionMode: "default"`, `branch: null`, `worktreePath: null`, `createdBy: "agent"`, and `creationSource: "server"`. Default to auto to avoid repeated tool approvals unless the user requests another mode; confirm the server supports it and verify the saved thread mode. Preserve existing project and thread state.
+7. If the user asked to start work, dispatch `message.dispatch` with a new `commandId` and `messageId`, `threadId`, the requested `text`, `attachments: []`, `modelSelection`, `dispatchMode: {"type":"start_immediately"}`, `createdBy: "agent"`, and `creationSource: "server"`. For follow-ups use the existing thread ID and avoid starting or steering unrelated work.
+8. Verify creation in the shell snapshot, then inspect `GET /api/orchestration/threads/<threadId>` with the same authorization and protocol header for run status and output. Report the project, title, ID, and whether the run completed; distinguish server-side verification from actually observing the client UI.
