@@ -5,7 +5,7 @@ Linux and macOS:
 
 - Linux uses a systemd user timer, as on `gianrtx` under `gianpaj`.
 - macOS uses a system-wide launchd daemon that runs as the checkout owner, as on
-  `farmini` under `rose`. It works without a desktop login.
+  `macos_machine ` under `macos_user`. It works without a desktop login.
 
 Complete sections 1 and 2 on either platform, then follow the
 [Linux setup](#linux-install-the-service-and-timer) or
@@ -53,8 +53,8 @@ whoami
 command -v git python3 launchctl
 ```
 
-On `macos_machine`, expect user `mac_user`, Git at `/opt/homebrew/bin/git`, and
-Python at `/opt/homebrew/bin/python3`. The macOS setup also supports Intel
+On `macos_machine`, expect user `macos_user`, Git at `/opt/homebrew/bin/git`,
+and Python at `/opt/homebrew/bin/python3`. The macOS setup also supports Intel
 Homebrew under `/usr/local/bin`. `systemctl` is not available on macOS.
 
 Use the same checkout path on each machine. If it does not exist, clone it:
@@ -321,9 +321,9 @@ ssh gianrtx 'journalctl --user -u skills-sync.service -n 20 --no-pager'
 
 ## macOS: install the LaunchDaemon
 
-Run these steps on `macos_machine` as `mac_user`, after completing sections 1
+Run these steps on `macos_machine` as `macos_user`, after completing sections 1
 and 2. A LaunchDaemon runs in the system domain at boot, even without a desktop
-login. Its `UserName` setting runs Python and Git as `mac_user`, not root.
+login. Its `UserName` setting runs Python and Git as `macos_user`, not root.
 
 The Mac must be awake, have network access, and have its startup disk unlocked.
 With FileVault enabled, a restart can require a person to unlock the disk before
@@ -388,7 +388,7 @@ plutil -lint ~/.local/state/skills-sync/com.gianpaj.skills-sync.plist
 ```
 
 On `macos_machine`, check that the output says
-`Runs as mac_user using /opt/homebrew/bin/python3` and that `plutil` reports
+`Runs as macos_user using /opt/homebrew/bin/python3` and that `plutil` reports
 `OK`.
 
 `RunAtLoad` starts one sync when launchd loads the job. `StartInterval` requests
@@ -399,7 +399,7 @@ here.
 
 ### Test, install, and enable
 
-Run one sync as `mac_user`, using the daemon's `PATH`. Do not use `sudo` for
+Run one sync as `macos_user`, using the daemon's `PATH`. Do not use `sudo` for
 this test. Stop if it fails and resolve the reported problem before installing
 the daemon.
 
