@@ -3,6 +3,11 @@
 - [Local speech-to-text](local-stt-integration/SKILL.md): install a local
   Needle/Whistle adapter, connect incoming voice notes, and compare ASR engines.
 
+## Repository sync
+
+See [SYNC.md](SYNC.md) to automatically pull this repository every five minutes
+on Linux or macOS without overwriting local work.
+
 ## Setup Global AGENTS.md
 
 ```sh
