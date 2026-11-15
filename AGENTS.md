@@ -144,34 +144,54 @@ Save larger plans under `<repo>/plans/`. Prefix filenames with the date:
 
 ## Large implementations and long-running work
 
-Work step by step. Record learnings, trade-offs, and decisions in Markdown files
+Work step by step. Record learnings, trade-offs, and decisions as Agent Notes
 under `.agents/notes/`. This includes implementing any plan or spec longer than
 40 lines.
 
-Agent Notes are durable proposals and decision records. They preserve rationale,
-alternatives, consequences, and verification.
+## Agent Notes
+
+Agent Notes are durable proposals and decision records. They preserve the
+rationale, alternatives, consequences, and verification that code, tests, and
+docs cannot carry.
+
+Write or update a note in the same change as the decision. Mechanical edits and
+local UI tweaks are exempt.
+
+### Layout
 
 Every Agent Note has a lifecycle and a class. Encode both in its path:
 
 `.agents/notes/{lifecycle}/{class}/yyyy-mm-dd-topic-title.md`
 
-Pick a short `class` noun and stay consistent within the repository.
+The date is when the topic was first proposed.
 
 - `proposed/` contains decisions under review or partly implemented.
-- `implemented/` contains decisions that shipped. Record the chosen and rejected
-  options. Keep facts such as paths, names, structure, and defaults aligned with
-  the code. Preserve the original rationale.
-- `rejected/` contains declined proposals. Keep one only when its rationale
-  prevents a likely future mistake.
+- `implemented/` contains decisions that shipped. Keep facts such as paths,
+  names, structure, and defaults aligned with the code. Preserve the original
+  rationale.
+- `rejected/` contains declined proposals.
 - Move a note when its lifecycle changes. Do not keep copies in multiple
   lifecycle directories.
+
+Pick a short `class` noun and stay consistent within the repository. A good
+default set:
+
+- `feature`: a new user- or model-facing capability
+- `bug-fix`: corrects a defect or closes a gap a postmortem found
+- `simplification`: removes code, behavior, or surface area
+- `architecture`: how the shipped source is structured
+- `process`: tooling and workflow around the code
+- `testing`: test infrastructure and strategy
+
+Link between notes with relative Markdown links. Do not add an index file; the
+folder tree is the index.
 
 Examples:
 
 ```text
 .agents/notes
 ├── implemented
-│   └── frontend
+│   └── feature
 │       ├── 2026-08-18-landing-page-and-design-tokens.md
 │       └── 2026-08-19-shadcn-button-and-select-adoption.md
 ├── proposed
@@ -180,6 +200,59 @@ Examples:
 │   └── process
 │       └── 2026-08-18-deferred-hardening-gates.md
 ```
+
+### Format
+
+Start every note with this header. The status must match the lifecycle folder.
+
+```markdown
+# Agent Note: <title>
+
+Status: proposed | implemented | rejected — <one-line reason>
+```
+
+Use these sections in order. Bespoke technical sections, such as schemas or
+wire contracts, may sit between them.
+
+- `proposed/`: Problem, Proposal, Alternatives considered, Acceptance criteria,
+  Risks
+- `implemented/`: Problem, Decision, Alternatives considered, Consequences
+- `rejected/`: the proposal as it stood when rejected
+
+Write the Problem so it stands without the solution. Write the Decision in the
+present tense. Consequences record what the trade-off cost and what it bought.
+
+Every note needs Alternatives considered: each real alternative and why it lost.
+A decision recorded without what it beat invites re-litigation. Never invent
+alternatives.
+
+When a note moves to `implemented/`, rewrite the Proposal as a present-tense
+Decision and fold Acceptance criteria and Risks into Consequences.
+
+### Supersession
+
+Before writing a note, search active notes for the same decision or mechanism.
+
+- If a note already owns the decision, update it instead of adding a duplicate.
+- Never edit a note into a different decision. Write a new note and cross-link
+  both.
+- Keep a partially superseded note, cross-link it, and update its facts.
+- Delete a fully superseded implemented note only after the new owner keeps
+  every unique rationale, alternative, and consequence. Git history must not be
+  the only copy.
+
+### Pruning
+
+Judge a note by whether it can still guide future work, not by length or age.
+
+- Delete implemented notes that only record small UI tweaks or mechanical
+  changes.
+- Keep implemented notes whose rationale, alternatives, ownership boundary,
+  data format, security rule, or reintroduction condition still matters.
+- Never delete a stale proposal. Move it to `rejected/` with an honest reason.
+- Keep a rejected note only while the losing idea stays tempting. Otherwise
+  delete it.
+- When deleting a note, repair or remove inbound links.
 
 ## Writing
 
